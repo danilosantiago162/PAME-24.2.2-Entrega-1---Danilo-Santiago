@@ -48,6 +48,13 @@ class Funcionario{
         this.senha = senha;
 
     }
+    verInformacoesF(){
+        console.log("\n--- Suas Informações ---\n");
+        console.log(`📌 ID: ${this.ID_unico}`);
+        console.log(`📌 Nome de usuario: ${this.nome_usuario}`);
+        console.log(`📌 CPF: ${this.cpf}`);
+        console.log(`📌 Email: ${this.email}`);
+    }
     
 }
 
@@ -63,7 +70,7 @@ class Cliente{
         this.senha = senha;
 
     }
-    verInformacoes() {
+    verInformacoesC() {
         console.log("\n--- Suas Informações ---\n");
         console.log(`📌 ID: ${this.ID_unico}`);
         console.log(`📌 Nome: ${this.nome}`);
@@ -75,12 +82,13 @@ class Cliente{
 
 class Quartos{
 
-    constructor(qtde_camas, preco_noite, nome, descricao){
+    constructor(qtde_camas, preco_noite, nome, descricao, disponibilidade = "vago"){
 
         this.qtde_camas = qtde_camas;
         this.preco_noite = preco_noite;
         this.nome = nome;
         this.descricao = descricao;
+        this.disponibilidade = disponibilidade;
 
     }
 }
@@ -91,14 +99,108 @@ class Sistema{
         this.quartos = new Map(); // armazena os quartos
         this.clients = new Map(); // Store clients using their unique ID
         this.funcionarios = new Map();
+        this.reservas = new Map();
         this.loadClients(); // Load existing clients from file when the system starts
         this.loadQuartos();
         this.loadFuncionarios();
+        this.loadReservas();
         this.loggedInClient = null; // Store the logged-in client
         this.loggedInFuncionario = null;
     }
+    fazerReserva(){
+        console.log("\n--- Reserva de quartos ---\n");
+
+        this.verQuartos();
+
+        let nome = requisicao.question("\nInsira abaixo o nome do quarto de interesse, assegure-se de que o mesmo encontra-se vago");
+        if (this.quartos.has(nome)) {
+            let quarto = this.quartos.get(nome);
+
+            if (quarto.disponibilidade === "vago") {
+
+                let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada: ")
+                let checkout = requisicao.question("Por favor, informe-nos o dia de sua saida: ")
+                let ID_unico;
+                do {
+                    ID_unico = this.gerarID();
+                } while (this.clients.has(ID_unico)); // Ensure unique ID
+                let ID_cliente = this.loggedInClient.ID_unico;
+                let reserva = new Reserva(ID_unico, ID_cliente, nome, "Realizada", checkin, checkout)
+                this.reservas.set(ID_unico, reserva);
+                this.saveReservas();
+
+            } else {
+                let m = requisicao.question("\nEste quarto nao esta disponivel! \nGostaria de tentar outro? ");
+                if (m == "sim"){
+                    this.fazerReserva();
+                } else {
+                    return
+                }
+            }
+        } else {
+            let m = requisicao.question("\nDesculpe. Não encontramos esse quarto em nosso sistema.\nGostaria de tentar outro?");
+            if (m == sim){
+                this.fazerReserva();
+            }
+            else if (m == nao){
+                return
+            } else {
+                let m = requisicao.question("\nDesculpe, nao entendi. \nDigite sim ou nao para  a pergunta anterior")
+                if (m == sim){
+                    this.fazerReserva();
+                } else {
+                    return
+                }
+            }
+
+        }
+    }
+    cancelarReserva() {
+        // Step 1: Load existing reservations
+        if (!fs.existsSync("reservas.json")) {
+            console.log("Nenhuma reserva encontrada.");
+            return;
+        }
+        let ID_reserva = requisicao.question("Insira o ID da reserva que voce deseja cancelar: ")
+        const data = fs.readFileSync("reservas.json", "utf-8");
+        const reservas = JSON.parse(data);
+        let reservaExiste = reservas.some(reserva => reserva.ID_unico === ID_reserva);
+        if (!reservaExiste) {
+            console.log("❌ Reserva não encontrada.");
+            return;
+        }
+
+        // Step 3: Remove the reservation
+        const reservasAtualizadas = reservas.filter(reserva => reserva.ID_unico !== ID_reserva);
+
+        // Step 4: Save updated list back to JSON
+        fs.writeFileSync("reservas.json", JSON.stringify(reservasAtualizadas, null, 2));
+
+        console.log(`✅ Reserva ${ID_reserva} cancelada com sucesso!`);
+    }
     gerarID() {
         return "ID_" + Math.floor(1000 + Math.random() * 9000);
+    }
+    verMinhasReservas(){
+        console.log("\n--- Lista das Minhas Reservas ---\n");
+
+        let ID_cliente = this.loggedInClient.ID_unico;
+
+        let reservasCliente = Array.from(this.reservas.values()).filter(reserva => reserva.ID_cliente === ID_cliente);
+
+        if (reservasCliente.length === 0) {
+            console.log("Nenhuma reserva encontrada para este cliente.");
+        } else {
+            reservasCliente.forEach(reserva => {
+                console.log(
+                `ID da reserva: ${reserva.ID_unico}, \n` +
+                `ID cliente: ${ID_cliente},\n` +
+                `Status: ${reserva.status}, \n` +
+                `Check In: ${reserva.checkin}, \n` +
+                `Check Out: ${reserva.checkout}\n` +
+                `-----------------------`);
+            });
+        }
     }
     fazerLoginC() {
         console.log("\n--- Login de Cliente ---\n");
@@ -125,6 +227,7 @@ class Sistema{
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
+            return
         }
     }  
     fazerCadastroC() {
@@ -147,11 +250,16 @@ class Sistema{
 
         console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}`);
     }
-    verInformacoes() {
+    verInformacoesC() {
         if (this.loggedInClient) {
-            this.loggedInClient.verInformacoes();
+            this.loggedInClient.verInformacoesC();
         } else {
             console.log("\n⚠️ Nenhum usuário logado. Faça login primeiro.\n");
+        }
+    }
+    verInformacoesF(){
+        if (this.loggedInFuncionario) {
+            this.loggedInFuncionario.verInformacoesF()
         }
     }
     fazerCadastroF() {
@@ -207,8 +315,9 @@ class Sistema{
         let preco_noite = requisicao.question("Preco por noite: ");
         let nome = requisicao.question("Nome do quarto: ");
         let descricao = requisicao.question("Descricao do quarto: ");
+        let disponibilidade = "vago"
 
-        let quarto = new Quartos(qtde_camas, preco_noite, nome, descricao);
+        let quarto = new Quartos(qtde_camas, preco_noite, nome, descricao, disponibilidade);
         this.quartos.set(nome, quarto);
         this.saveQuartos();
     }
@@ -218,7 +327,13 @@ class Sistema{
             console.log("Não há quartos");
         } else {
             this.quartos.forEach((quarto, nome) => {
-                console.log(`quantidade de camas: ${quarto.qtde_camas}, \npreço por noite: ${quarto.preco_noite},\nnome: ${nome}, \ncomentários: ${quarto.descricao}`);
+                console.log(
+                    `quantidade de camas: ${quarto.qtde_camas}, \n` +
+                    `preço por noite: ${quarto.preco_noite},\n` +
+                    `nome: ${nome}, \n` +
+                    `comentários: ${quarto.descricao}, \n` +
+                    `Disponibilidade: ${quarto.disponibilidade}\n` +
+                    `-------------------------`);
             });
         }
     }
@@ -298,6 +413,28 @@ class Sistema{
             });
         }
     }
+    saveReservas() {
+        const reservasArray = Array.from(this.reservas.values());
+        fs.writeFileSync("reservas.json", JSON.stringify(reservasArray, null, 2));
+    }
+    
+    loadReservas() {
+        if (fs.existsSync("reservas.json")) {
+            const data = fs.readFileSync("reservas.json", "utf-8");
+            const reservasArray = JSON.parse(data);
+            reservasArray.forEach(reservaObj => {
+                // Convert plain object to Cliente instance
+                let reserva = new Reserva(
+                    reservaObj.ID_unico,
+                    reservaObj.ID_cliente,
+                    reservaObj.status,
+                    reservaObj.checkin,
+                    reservaObj.checkout,
+                );
+                this.reservas.set(reserva.nome, reserva);
+            });
+        }
+    }    
 }
 let sistema = new Sistema()
 let n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
@@ -320,29 +457,39 @@ if (n1 == 1){
         "Ver minhas reservas: aperte 5\n"
         )
     if (n2 == 1){
-        sistema.verInformacoes();
+        sistema.verInformacoesC();
     }
     if (n2 == 2){
         sistema.verQuartos();
     }
     if (n2 == 3){
-
+        sistema.fazerReserva();
     }
     if (n2 == 4){
-
+        sistema.cancelarReserva();
     }
     if (n2 == 5){
-
+        sistema.verMinhasReservas();
     }
 }
 if (n1 == 2){
     sistema.fazerLoginF();
-
-    if (n1 == 1){
+    let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: "+
+        "Acessar lista de clientes: Aperte 1" +
+        "Registrar novos quartos: Aperte 2" +
+        "Acessar lista de quartos:" 
+    )
+    if (n2 == 1){
         sistema.listarClientes();
     }
-    if (n1 == 2){
+    if (n2 == 2){
         sistema.addQuartos();
+    }
+    if (n2 == 3){
+        sistema.verQuartos();
+    }
+    if (n2 == 4){
+        sistema.verInformacoesF
     }
 }
 if (n1 == 3){
@@ -350,10 +497,4 @@ if (n1 == 3){
 }
 if (n1 == 4){
     sistema.fazerCadastroF();
-}
-if (n1 == 10){
-    sistema.listarClientes();
-}
-if (n1 == 11){
-    sistema.addQuartos();
 }

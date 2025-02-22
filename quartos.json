@@ -2,13 +2,8 @@
   {
     "qtde_camas": "2",
     "preco_noite": "200",
-    "nome": "312",
-    "descricao": "quarto bem localizado no centro de Paris com conforto pra voce e sua familia"
-  },
-  {
-    "qtde_camas": "",
-    "preco_noite": "",
-    "nome": "",
-    "descricao": ""
+    "nome": "Suite 202",
+    "descricao": "otimo quarto perto do centro de Paris para voc� e sua fam�lia se hospedarem",
+    "disponibilidade": "Vago"
   }
 ]
