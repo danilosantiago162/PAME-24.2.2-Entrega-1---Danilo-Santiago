@@ -1,0 +1,16 @@
+[
+  {
+    "ID_unico": "ID_7893",
+    "nome_usuario": "Danilo",
+    "cpf": "77777777777",
+    "email": "danilofuncionario@gmail.com",
+    "senha": "123456789"
+  },
+  {
+    "ID_unico": "ID_9167",
+    "nome_usuario": "Danilo",
+    "cpf": "",
+    "email": "",
+    "senha": ""
+  }
+]
