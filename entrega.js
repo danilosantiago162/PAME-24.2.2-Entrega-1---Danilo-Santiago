@@ -96,36 +96,45 @@ class Quartos{
 class Sistema{
 
     constructor() {
-        this.quartos = new Map(); // armazena os quartos
-        this.clients = new Map(); // Store clients using their unique ID
+
+        //armazena em arrays as informações de quarto, cliente, funcionario e reservas
+
+        this.quartos = new Map();
+        this.clients = new Map();
         this.funcionarios = new Map();
         this.reservas = new Map();
-        this.loadClients(); // Load existing clients from file when the system starts
+
+        //sempre que alguem cadastra/registra um cliente/quarto/funcionario/reserva o this. carrega para as arrays criadas
+        
+
+        this.loadClients(); 
         this.loadQuartos();
         this.loadFuncionarios();
         this.loadReservas();
-        this.loggedInClient = null; // Store the logged-in client
-        this.loggedInFuncionario = null;
+        this.loggedInClient = null; // Armazera o cliente logado
+        this.loggedInFuncionario = null; // Armazena o funcionario logado
     }
     fazerReserva(){
         console.log("\n--- Reserva de quartos ---\n");
 
-        this.verQuartos();
+        this.verQuartos(); //exibe todos os quartos com todas informaçôes
 
         let nome = requisicao.question("\nInsira abaixo o nome do quarto de interesse, assegure-se de que o mesmo encontra-se vago");
-        if (this.quartos.has(nome)) {
-            let quarto = this.quartos.get(nome);
+        if (this.quartos.has(nome)) { //verifica a existência de algum quarto com o mesmo nome que foi inserido pelo cliente
+            let quarto = this.quartos.get(nome); // a variavel quarto é um objeto caso "nome" exista como chave em this.quartos 
 
             if (quarto.disponibilidade === "vago") {
 
                 let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada: ")
                 let checkout = requisicao.question("Por favor, informe-nos o dia de sua saida: ")
+
                 let ID_unico;
                 do {
                     ID_unico = this.gerarID();
-                } while (this.clients.has(ID_unico)); // Ensure unique ID
+                } while (this.reservas.has(ID_unico)); 
+
                 let ID_cliente = this.loggedInClient.ID_unico;
-                let reserva = new Reserva(ID_unico, ID_cliente, nome, "Realizada", checkin, checkout)
+                let reserva = new Reserva(ID_unico, ID_cliente, "Realizada", checkin, checkout)
                 this.reservas.set(ID_unico, reserva);
                 this.saveReservas();
 
@@ -139,14 +148,14 @@ class Sistema{
             }
         } else {
             let m = requisicao.question("\nDesculpe. Não encontramos esse quarto em nosso sistema.\nGostaria de tentar outro?");
-            if (m == sim){
+            if (m == "sim"){
                 this.fazerReserva();
             }
-            else if (m == nao){
+            else if (m == "nao"){
                 return
             } else {
                 let m = requisicao.question("\nDesculpe, nao entendi. \nDigite sim ou nao para  a pergunta anterior")
-                if (m == sim){
+                if (m == "sim"){
                     this.fazerReserva();
                 } else {
                     return
@@ -250,16 +259,11 @@ class Sistema{
 
         console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}`);
     }
-    verInformacoesC() {
+    verInformacoes() {
         if (this.loggedInClient) {
             this.loggedInClient.verInformacoesC();
         } else {
             console.log("\n⚠️ Nenhum usuário logado. Faça login primeiro.\n");
-        }
-    }
-    verInformacoesF(){
-        if (this.loggedInFuncionario) {
-            this.loggedInFuncionario.verInformacoesF()
         }
     }
     fazerCadastroF() {
@@ -303,9 +307,36 @@ class Sistema{
                 return true;
             } else {
                 console.log("\n❌ Senha incorreta. Tente novamente.\n");
+                return
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
+            return
+        }
+    }
+//---------------------------------------------------------------------------------------------
+
+//FUNÇÔES DO FUNCIOÁRIO:
+
+    verInformacoesf(){
+        if (this.loggedInFuncionario) {
+            this.loggedInFuncionario.verInformacoesF();
+        }
+    }
+    listarReservas() {
+        console.log("\n--- Lista de Reservas ---\n");
+        if (this.reservas.size === 0) {
+            console.log("Nenhuma reserva cadastrada.");
+        } else {
+            this.reservas.forEach((reserva, ID_unico) => {
+                console.log(
+                    `ID da Reserva: ${ID_unico}` +
+                    `ID do Cliente: ${reserva.ID_cliente}` +
+                    `Status: ${reserva.status}` +
+                    `Check In: ${reserva.checkin}` +
+                    `Check Out: ${reserva.checkout}`
+                );
+            });
         }
     }
     addQuartos() {
@@ -347,6 +378,24 @@ class Sistema{
             });
         }
     }
+    MudarStatus(){
+        let ID_reserva = requisicao.question("\nPor favor, insira o ID da reserva que voce deseja alterar o status: ")
+        let reserva = this.reservas.get(ID_reserva) 
+        if (!reserva){
+            console.log("Desculpe. Reserva não encontrada!");
+            return;
+        }
+        let novo_status = requisicao.question(`\nAltere o status da reserva: ${reserva.ID_unico} de ${reserva.status} para: `)
+        reserva.status = novo_status
+
+        console.log(`\n✅ Status atualizado com sucesso para "${reserva.status}"!`);
+
+        this.saveReservas();
+    }
+
+//-----------------------------------------------------------------------------------------------------
+//SAVE AND LOADS
+
     saveClients() {
         const clientsArray = Array.from(this.clients.values());
         fs.writeFileSync("clientes.json", JSON.stringify(clientsArray, null, 2));
@@ -431,10 +480,11 @@ class Sistema{
                     reservaObj.checkin,
                     reservaObj.checkout,
                 );
-                this.reservas.set(reserva.nome, reserva);
+                this.reservas.set(reserva.ID_unico, reserva);
             });
         }
     }    
+//-------------------------------------------------------------------------------------------------------------
 }
 let sistema = new Sistema()
 let n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
@@ -457,7 +507,7 @@ if (n1 == 1){
         "Ver minhas reservas: aperte 5\n"
         )
     if (n2 == 1){
-        sistema.verInformacoesC();
+        sistema.verInformacoes();
     }
     if (n2 == 2){
         sistema.verQuartos();
@@ -475,9 +525,12 @@ if (n1 == 1){
 if (n1 == 2){
     sistema.fazerLoginF();
     let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: "+
-        "Acessar lista de clientes: Aperte 1" +
-        "Registrar novos quartos: Aperte 2" +
-        "Acessar lista de quartos:" 
+        "\nAcessar lista de clientes: Aperte 1\n" +
+        "Registrar novos quartos: Aperte 2\n" +
+        "Acessar lista de quartos: Aperte 3\n" +
+        "Ver suas informações: Aperte 4\n" +
+        "Listar reservas: Aperte 5\n" +
+        "Mudar status de reserva: Aperte 6\n"
     )
     if (n2 == 1){
         sistema.listarClientes();
@@ -489,11 +542,17 @@ if (n1 == 2){
         sistema.verQuartos();
     }
     if (n2 == 4){
-        sistema.verInformacoesF
+        sistema.verInformacoesf();
+    }
+    if (n2 == 5){
+        sistema.listarReservas();
+    }
+    if (n2 == 6){
+        sistema.MudarStatus();
     }
 }
 if (n1 == 3){
-    sistema.fazerCadastroC(); // Call the method correctly
+    sistema.fazerCadastroC();
 }
 if (n1 == 4){
     sistema.fazerCadastroF();

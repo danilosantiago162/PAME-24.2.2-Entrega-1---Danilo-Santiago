@@ -5,5 +5,24 @@
     "status": "Suite 202",
     "checkin": "Realizada",
     "checkout": "01/09/2025"
+  },
+  {
+    "ID_unico": "ID_7409",
+    "status": "Suite 202",
+    "checkin": "Realizada",
+    "checkout": "23"
+  },
+  {
+    "ID_unico": "ID_4411",
+    "status": "Realizada",
+    "checkin": "23",
+    "checkout": "24"
+  },
+  {
+    "ID_unico": "ID_8613",
+    "ID_cliente": "ID_2827",
+    "status": "adiada",
+    "checkin": "23",
+    "checkout": "24"
   }
 ]
