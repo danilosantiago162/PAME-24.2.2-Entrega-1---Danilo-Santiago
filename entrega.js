@@ -93,6 +93,18 @@ class Quartos{
     }
 }
 
+class Avaliacao{
+
+    constructor(nome_ex_cliente, cpf, checkin, checkout, comentario){
+
+        this.nome_ex_cliente = nome_ex_cliente;
+        this.cpf = cpf;
+        this.checkin = checkin;
+        this.checkout = checkout;
+        this.comentario = comentario;
+
+    }
+}
 class Sistema{
 
     constructor() {
@@ -103,6 +115,7 @@ class Sistema{
         this.clients = new Map();
         this.funcionarios = new Map();
         this.reservas = new Map();
+        this.avaliacoes = new Map();
 
         //sempre que alguem cadastra/registra um cliente/quarto/funcionario/reserva o this. carrega para as arrays criadas
         
@@ -111,6 +124,7 @@ class Sistema{
         this.loadQuartos();
         this.loadFuncionarios();
         this.loadReservas();
+        this.loadAvaliacoes();
         this.loggedInClient = null; // Armazera o cliente logado
         this.loggedInFuncionario = null; // Armazena o funcionario logado
     }
@@ -190,6 +204,68 @@ class Sistema{
     gerarID() {
         return "ID_" + Math.floor(1000 + Math.random() * 9000);
     }
+    MudarDadosC(){
+        console.log("\n--- Mudanca de Dados ---\n");
+        let change = requisicao.question("Nos diga o que deseja mudar: \n"+
+            "Mudar nome:                   Digite 1\n" + 
+            "Mudar email:                  Digite 2\n" +
+            "Mudar senha:                  Digite 3\n" +
+            "Mudar data de nascimento:     Digite 4\n" +
+            "Mudar cpf:                    Digite 5\n"
+        );
+
+        if (change == 1){
+            let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
+            if (novo_nome.length === 0) {
+                console.log("O nome não pode estar vazio. Tente novamente.");
+                return;
+            }
+            this.loggedInClient.nome = novo_nome;
+            this.saveClients();
+            console.log("\nNome mudado com sucesso!\n")
+        }
+        if (change == 2){
+            let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            if (novo_email.length === 0) {
+                console.log("O email não pode estar vazio. Tente novamente.");
+                return;
+            }
+            this.loggedInClient.email = novo_email;
+            this.saveClients();
+            console.log("\nEmail mudado com sucesso!\n")
+        }
+        if (change == 3){
+            let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
+            if (nova_senha.length === 0) {
+                console.log("A senha não pode estar vazia. Tente novamente.");
+                return;
+            }
+            this.loggedInClient.senha = nova_senha;
+            this.saveClients();
+            console.log("\nSenha mudada com sucesso!\n")
+        }
+        if (change == 4){
+            let novo_data_nascimento = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            if (novo_data_nascimento.length === 0) {
+                console.log("A data de nascimento não pode estar vazia. Tente novamente.");
+                return;
+            }
+            this.loggedInClient.data_nascimento = novo_data_nascimento;
+            this.saveClients();
+            console.log("\nData de nascimento mudada com sucesso!\n")
+        }
+        if (change == 5){
+            let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado: ");
+            if (novo_cpf.length === 0) {
+                console.log("O cpf não pode estar vazio. Tente novamente.");
+                return;
+            }
+            this.loggedInClient.cpf = novo_cpf;
+            this.saveClients();
+            console.log("\nCPF mudado com sucesso!\n")
+        }
+    }
+
     verMinhasReservas(){
         console.log("\n--- Lista das Minhas Reservas ---\n");
 
@@ -207,7 +283,7 @@ class Sistema{
                 `Status: ${reserva.status}, \n` +
                 `Check In: ${reserva.checkin}, \n` +
                 `Check Out: ${reserva.checkout}\n` +
-                `-----------------------`);
+                `-----------------------\n`);
             });
         }
     }
@@ -233,10 +309,11 @@ class Sistema{
                 return true;
             } else {
                 console.log("\n❌ Senha incorreta. Tente novamente.\n");
+                return;
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
-            return
+            return;
         }
     }  
     fazerCadastroC() {
@@ -257,7 +334,7 @@ class Sistema{
         this.clients.set(ID_unico, cliente);
         this.saveClients(); // Save data after adding a new client
 
-        console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}`);
+        console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}\n`);
     }
     verInformacoes() {
         if (this.loggedInClient) {
@@ -283,7 +360,7 @@ class Sistema{
         this.funcionarios.set(ID_unico, funcionario);
         this.saveFuncionarios(); // Save data after adding a new funcionario
 
-        console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}`);
+        console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}\n`);
     }
     fazerLoginF() {
         console.log("\n--- Login de Funcionario ---\n");
@@ -307,16 +384,109 @@ class Sistema{
                 return true;
             } else {
                 console.log("\n❌ Senha incorreta. Tente novamente.\n");
-                return
+                return;
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
-            return
+            return;
         }
     }
 //---------------------------------------------------------------------------------------------
 
 //FUNÇÔES DO FUNCIOÁRIO:
+    EditarQuarto(){
+        this.verQuartos();
+        let escolha = requisicao.question("Insira o nome do quarto que voce desejar editar: ");
+        let quarto = this.quartos.get(escolha)
+        if (quarto){
+            let n = requisicao.question("Qual informacao voce deseja alterar?: \n" +
+                "Nome:                  Digite 1\n" +
+                "Quantidade de camas:   Digite 2\n" +
+                "Preco da noite:        Digite 3\n" +
+                "Descricao:             Digite 4\n"
+            )
+            if (n == 1){
+                let novo_nome = requisicao.question(`Insira o novo nome do quarto ${quarto.nome}: `);
+                quarto.nome = novo_nome;
+                this.saveQuartos();
+            }
+            if (n == 2){
+                let novo_qtde_camas= requisicao.question(`Insira a nova quantidade de camas do quarto ${quarto.nome}: `);
+                quarto.qtde_camas = novo_qtde_camas;
+                this.saveQuartos();
+            }
+            if (n == 3){
+                let novo_preco = requisicao.question(`Insira o novo preco da noite do quarto ${quarto.nome}: `);
+                quarto.preco_noite = novo_preco;
+                this.saveQuartos();
+            }
+            if (n == 4){
+                let novo_descricao = requisicao.question(`Insira a nova descricao do quarto ${quarto.nome}: `);
+                quarto.descricao = novo_descricao;
+                this.saveQuartos();
+            } 
+            if (n != 1 && n != 2 && n != 3 && n != 4) {
+                console.log("Desculpe. Opcao inexistente!");
+            }
+            this.verQuartos();
+        }
+    }
+    ExcluirQuarto(){
+        this.verQuartos();
+
+        let escolha = requisicao.question("Insira o nome do quarto que voce deseja excluir: ");
+
+        if (this.quartos.set(escolha)){
+            this.quartos.delete(escolha)
+            this.saveQuartos();
+
+            console.log("\nQuarto deletado com sucesso!");
+
+            this.verQuartos();
+            return
+        } else { 
+            console.log("\nDesculpe. Quarto inexistente!\n");
+        }
+    }
+    MudarDadosF(){
+        console.log("\n--- Mudanca de Dados ---\n");
+        let change = requisicao.question("Nos diga o que deseja mudar: \n"+
+            "Mudar nome de usuario:        Digite 1\n" +
+            "Mudar email:                  Digite 2\n" +
+            "Mudar senha:                  Digite 3\n" 
+        );
+
+        if (change == 1){
+            let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
+            if (novo_nome.length === 0) {
+                console.log("O nome não pode estar vazio. Tente novamente.");
+                return;
+            }
+            this.loggedInFuncionario.nome_usuario = novo_nome;
+            this.saveFuncionarios();
+            console.log("\nNome mudado com sucesso!\n")
+        }
+        if (change == 2){
+            let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            if (novo_email.length === 0) {
+                console.log("O email não pode estar vazio. Tente novamente.");
+                return;
+            }
+            this.loggedInFuncionario.email = novo_email;
+            this.saveFuncionarios();
+            console.log("\nEmail mudado com sucesso!\n")
+        }
+        if (change == 3){
+            let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
+            if (nova_senha.length === 0) {
+                console.log("A senha não pode estar vazia. Tente novamente.");
+                return;
+            }
+            this.loggedInFuncionario.senha = nova_senha;
+            this.saveFuncionarios();
+            console.log("\nSenha mudada com sucesso!\n")
+        }
+    }
 
     verInformacoesf(){
         if (this.loggedInFuncionario) {
@@ -334,7 +504,7 @@ class Sistema{
                     `ID do Cliente: ${reserva.ID_cliente}` +
                     `Status: ${reserva.status}` +
                     `Check In: ${reserva.checkin}` +
-                    `Check Out: ${reserva.checkout}`
+                    `Check Out: ${reserva.checkout}\n`
                 );
             });
         }
@@ -351,6 +521,8 @@ class Sistema{
         let quarto = new Quartos(qtde_camas, preco_noite, nome, descricao, disponibilidade);
         this.quartos.set(nome, quarto);
         this.saveQuartos();
+
+        console.log("Cadastramento de quarto realizado com sucesso!\n");
     }
     verQuartos() {
         console.log("\n--- Lista de Quartos ---\n");
@@ -364,7 +536,7 @@ class Sistema{
                     `nome: ${nome}, \n` +
                     `comentários: ${quarto.descricao}, \n` +
                     `Disponibilidade: ${quarto.disponibilidade}\n` +
-                    `-------------------------`);
+                    `-------------------------\n`);
             });
         }
     }
@@ -374,7 +546,7 @@ class Sistema{
             console.log("Nenhum cliente cadastrado.");
         } else {
             this.clients.forEach((cliente, id) => {
-                console.log(`ID: ${id}, Nome: ${cliente.nome}, Email: ${cliente.email}`);
+                console.log(`ID: ${id}, Nome: ${cliente.nome}, Email: ${cliente.email}\n`);
             });
         }
     }
@@ -388,7 +560,7 @@ class Sistema{
         let novo_status = requisicao.question(`\nAltere o status da reserva: ${reserva.ID_unico} de ${reserva.status} para: `)
         reserva.status = novo_status
 
-        console.log(`\n✅ Status atualizado com sucesso para "${reserva.status}"!`);
+        console.log(`\n✅ Status atualizado com sucesso para "${reserva.status}"!\n`);
 
         this.saveReservas();
     }
@@ -441,6 +613,26 @@ class Sistema{
             });
         }
     }
+    saveAvaliacoes() {
+        const avaliacoesArray = Array.from(this.avaliacoes.values());
+        fs.writeFileSync("avaliacoes.json", JSON.stringify(avaliacoesArray, null, 2))
+    }
+    loadAvaliacoes() {
+        if (fs.existsSync("avaliacoes.json")) {
+            const data = fs.readFileSync("avaliacoes.json", "utf-8");
+            const avaliacoesArray = JSON.parse(data);
+            avaliacoesArray.forEach(avaliacaoObj => {
+                let avaliacao = new Avaliacao(
+                    avaliacaoObj.nome_ex_cliente,
+                    avaliacaoObj.cpf,
+                    avaliacaoObj.checkin,
+                    avaliacaoObj.checkout,
+                    avaliacaoObj.comentario
+                );
+                this.avaliacoes.set(avaliacao.cpf, avaliacao);
+            });
+        }
+    }
     saveQuartos() {
         const quartosArray = Array.from(this.quartos.values());
         fs.writeFileSync("quartos.json", JSON.stringify(quartosArray, null, 2));
@@ -485,26 +677,55 @@ class Sistema{
         }
     }    
 //-------------------------------------------------------------------------------------------------------------
+FazerAvaliacao(){
+    console.log("\n---   Avaliacao de estadia   ---\n");
+
+    let nome_ex_cliente = requisicao.question("Qual seu nome?: ");
+    let cpf = requisicao.question('Insira o numero do seu cpf por favor, sem os caracteres "." e "-" .');
+    let checkin = requisicao.question("Qual foi o dia do seu checkin?: ");
+    let checkout = requisicao.question("Qual foi o dia do seu checkout?: ");
+    let comentario = requisicao.question("Diga-nos como foi a sua experiencia no Hotel F-luxo: ")
+
+    let avaliacao = new Avaliacao(nome_ex_cliente, cpf, checkin, checkout, comentario);
+    this.avaliacoes.set(cpf, avaliacao);
+    this.saveAvaliacoes();
+}
+VisualizarAvaliacoes(){
+    console.log("\n---   Lista de Avaliacoes   ---\n");
+    if (this.avaliacoes.size === 0) {
+        console.log("Desculpe. Não há avaliacoes no momento!");
+        return;
+    }
+    this.avaliacoes.forEach((avaliacao, cpf) => {
+        console.log(
+            `\nNome do hospede: ${avaliacao.nome_ex_cliente}` +
+            `\nData de checkin: ${avaliacao.checkin}` +
+            `\nData de checkout: ${avaliacao.checkout}` +
+            `\nAvaliacao do hospede: \n\n${avaliacao.comentario}` 
+        );
+    });
+}
 }
 let sistema = new Sistema()
 let n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
     "Escolha uma opcao no nosso suporte de atendimento:\n\n" +
-    "Fazer Login de Cliente = Aperte 1 \n" +
-    "Fazer Login de Funcionario = Aperte 2 \n" +
-    "Fazer Cadastro de Cliente = Aperte 3 \n" +
-    "Fazer Cadastro de Funcionario = Aperte 4 \n" +
-    "Sair do Programa = Aperte 5\n" +
-    "Avaliar estadia = Aperte 6\n" +
-    "Visualizar avaliacoes = Aperte 7\n" 
+    "Fazer Login de Cliente =                Digite 1 \n" +
+    "Fazer Login de Funcionario =            Digite 2 \n" +
+    "Fazer Cadastro de Cliente =             Digite 3 \n" +
+    "Fazer Cadastro de Funcionario =         Digite 4 \n" +
+    "Sair do Programa =                      Digite 5\n" +
+    "Avaliar estadia =                       Digite 6\n" +
+    "Visualizar avaliacoes =                 Digite 7\n" 
     )
 if (n1 == 1){
     sistema.fazerLoginC();
     let n2 = requisicao.question("Como podemos ajudar? \n" +
-        "Ver meus dados: aperte 1\n" +
-        "Ver lista de quartos: aperte 2\n" +
-        "Fazer Reserva: aperte 3\n" + 
-        "Cancelar Reserva: aperte 4\n" +
-        "Ver minhas reservas: aperte 5\n"
+        "Ver meus dados:            Digite 1\n" +
+        "Ver lista de quartos:      Digite 2\n" +
+        "Fazer Reserva:             Digite 3\n" + 
+        "Cancelar Reserva:          Digite 4\n" +
+        "Ver minhas reservas:       Digite 5\n" +
+        "Mudar meus dados:          Digite 6\n"
         )
     if (n2 == 1){
         sistema.verInformacoes();
@@ -521,34 +742,50 @@ if (n1 == 1){
     if (n2 == 5){
         sistema.verMinhasReservas();
     }
+    if (n2 == 6){
+        sistema.MudarDadosC();
+    }
 }
 if (n1 == 2){
-    sistema.fazerLoginF();
-    let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: "+
-        "\nAcessar lista de clientes: Aperte 1\n" +
-        "Registrar novos quartos: Aperte 2\n" +
-        "Acessar lista de quartos: Aperte 3\n" +
-        "Ver suas informações: Aperte 4\n" +
-        "Listar reservas: Aperte 5\n" +
-        "Mudar status de reserva: Aperte 6\n"
-    )
-    if (n2 == 1){
-        sistema.listarClientes();
-    }
-    if (n2 == 2){
-        sistema.addQuartos();
-    }
-    if (n2 == 3){
-        sistema.verQuartos();
-    }
-    if (n2 == 4){
-        sistema.verInformacoesf();
-    }
-    if (n2 == 5){
-        sistema.listarReservas();
-    }
-    if (n2 == 6){
-        sistema.MudarStatus();
+    if (sistema.fazerLoginF() == true){
+        let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: \n"+
+            "Acessar lista de clientes:     Digite 1\n" +
+            "Registrar novos quartos:       Digite 2\n" +
+            "Acessar lista de quartos:      Digite 3\n" +
+            "Ver suas informacoes:          Digite 4\n" +
+            "Listar reservas:               Digite 5\n" +
+            "Mudar status de reserva:       Digite 6\n" +
+            "Mudar seus dados:              Digite 7\n" +
+            "Editar quartos:                Digite 8\n" +
+            "Excluir quartos:               Digite 9\n" 
+        )
+        if (n2 == 1){
+            sistema.listarClientes();
+        }
+        if (n2 == 2){
+            sistema.addQuartos();
+        }
+        if (n2 == 3){
+            sistema.verQuartos();
+        }
+        if (n2 == 4){
+            sistema.verInformacoesf();
+        }
+        if (n2 == 5){
+            sistema.listarReservas();
+        }
+        if (n2 == 6){
+            sistema.MudarStatus();
+        }
+        if (n2 == 7){
+            sistema.MudarDadosF();
+        }
+        if (n2 == 8){
+            sistema.EditarQuarto();
+        }
+        if (n2 == 9){
+            sistema.ExcluirQuarto();
+        }
     }
 }
 if (n1 == 3){
@@ -556,4 +793,10 @@ if (n1 == 3){
 }
 if (n1 == 4){
     sistema.fazerCadastroF();
+}
+if (n1 == 6){
+    sistema.FazerAvaliacao();
+}
+if (n1 == 7){
+    sistema.VisualizarAvaliacoes();
 }
