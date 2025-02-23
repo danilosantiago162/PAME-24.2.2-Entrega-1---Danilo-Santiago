@@ -53,7 +53,7 @@ class Funcionario{
         console.log(`📌 ID: ${this.ID_unico}`);
         console.log(`📌 Nome de usuario: ${this.nome_usuario}`);
         console.log(`📌 CPF: ${this.cpf}`);
-        console.log(`📌 Email: ${this.email}`);
+        console.log(`📌 Email: ${this.email}\n`);
     }
     
 }
@@ -76,7 +76,7 @@ class Cliente{
         console.log(`📌 Nome: ${this.nome}`);
         console.log(`📌 Data de Nascimento: ${this.data_nascimento}`);
         console.log(`📌 CPF: ${this.cpf}`);
-        console.log(`📌 Email: ${this.email}`);
+        console.log(`📌 Email: ${this.email}\n`);
     }
 }
 
@@ -319,6 +319,23 @@ class Sistema{
         }
         Cliente_Logado();
     }
+    verQuartos() {
+        console.log("\n--- Lista de Quartos ---\n");
+        if (this.quartos.size === 0) {
+            console.log("Não há quartos");
+        } else {
+            this.quartos.forEach((quarto, nome) => {
+                console.log(
+                    `quantidade de camas: ${quarto.qtde_camas}, \n` +
+                    `preço por noite: ${quarto.preco_noite},\n` +
+                    `nome: ${nome}, \n` +
+                    `comentários: ${quarto.descricao}, \n` +
+                    `Disponibilidade: ${quarto.disponibilidade}\n` +
+                    `-------------------------\n`);
+            });
+        }
+        Cliente_Logado();
+    }
 //---------------------------------------------------------------------------------------------
     fazerLoginC() {
         console.log("\n--- Login de Cliente ---\n");
@@ -451,7 +468,7 @@ class Sistema{
 
 //FUNÇÔES DO FUNCIOÁRIO:
     EditarQuarto(){
-        this.verQuartos();
+
         let escolha = requisicao.question("Insira o nome do quarto que voce desejar editar: ");
         let quarto = this.quartos.get(escolha)
         if (quarto){
@@ -489,11 +506,10 @@ class Sistema{
         }
     }
     ExcluirQuarto(){
-        this.verQuartos();
 
         let escolha = requisicao.question("Insira o nome do quarto que voce deseja excluir: ");
 
-        if (this.quartos.set(escolha)){
+        if (this.quartos.set(escolha) && escolha != ""){
             this.quartos.delete(escolha)
             this.saveQuartos();
 
@@ -526,7 +542,7 @@ class Sistema{
             this.saveFuncionarios();
             console.log("\nNome mudado com sucesso!\n")
             this.verInformacoesf();
-            Funcionario_Logado();
+            
         }
         if (change == 2){
             let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
@@ -547,7 +563,7 @@ class Sistema{
             this.saveFuncionarios();
             console.log("\nEmail mudado com sucesso!\n")
             this.verInformacoesf();
-            Funcionario_Logado();
+            
         }
         if (change == 3){
             let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
@@ -565,7 +581,7 @@ class Sistema{
             this.saveFuncionarios();
             console.log("\nSenha mudada com sucesso!\n")
             this.verInformacoesf();
-            Funcionario_Logado();
+            
         }
     }
 
@@ -834,6 +850,10 @@ function Pagina_Inicial(){
     if (n1 == 4){
         sistema.fazerCadastroF();
     }
+    if (n1 == 5){
+        console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
+        return;
+    }
     if (n1 == 6){
         sistema.FazerAvaliacao();
     }
@@ -857,7 +877,7 @@ function Cliente_Logado(){
         sistema.verInformacoes();
     }
     if (n2 == 2){
-        sistema.verQuartos();
+        sistema.verQuartosC();
     }
     if (n2 == 3){
         sistema.fazerReserva();
@@ -876,6 +896,7 @@ function Cliente_Logado(){
     }
     if (n2 == 8){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
+        return;
     }
 }
 function Funcionario_Logado(){
@@ -921,6 +942,7 @@ function Funcionario_Logado(){
     }
     if (n2 == 10){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
+        return;
     }
     if (n2 == 11){
         Pagina_Inicial();

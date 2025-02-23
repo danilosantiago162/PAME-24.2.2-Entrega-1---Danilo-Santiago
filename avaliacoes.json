@@ -18,5 +18,12 @@
     "checkin": "01/02/2024",
     "checkout": "04/02/2024",
     "comentario": "Melhor imposs�vel!"
+  },
+  {
+    "nome_ex_cliente": "",
+    "cpf": "",
+    "checkin": "",
+    "checkout": "",
+    "comentario": ""
   }
 ]
