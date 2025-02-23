@@ -19,5 +19,19 @@
     "cpf": "",
     "email": "",
     "senha": ""
+  },
+  {
+    "ID_unico": "ID_9468",
+    "nome_usuario": "",
+    "cpf": "",
+    "email": "",
+    "senha": ""
+  },
+  {
+    "ID_unico": "ID_4837",
+    "nome_usuario": "Danilo",
+    "cpf": "11111111122",
+    "email": "danilo.funcionario@gmail.com",
+    "senha": "123456789"
   }
 ]

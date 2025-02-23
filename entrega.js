@@ -811,6 +811,22 @@ function Pagina_Inicial(){
         "Avaliar estadia =                       Digite 6\n" +
         "Visualizar avaliacoes =                 Digite 7\n" 
         )
+    if (n1 == 1){
+        let bool = sistema.fazerLoginC();
+        if (bool == true){
+            Cliente_Logado();
+        } else {
+            Pagina_Inicial();
+        }
+    }
+    if (n1 == 2){
+        let bool = sistema.fazerLoginF()
+        if (bool == true){
+            Funcionario_Logado();
+        } else {
+            Pagina_Inicial();
+        }
+    }
     if (n1 == 3){
         sistema.fazerCadastroC();
     }
@@ -824,15 +840,6 @@ function Pagina_Inicial(){
         sistema.VisualizarAvaliacoes();
     }    
     return n1;
-}
-var n1 = Pagina_Inicial();
-if (n1 == 1){
-    let bool = sistema.fazerLoginC();
-    if (bool == true){
-        Cliente_Logado();
-    } else {
-        Pagina_Inicial();
-    }
 }
 function Cliente_Logado(){
     let n2 = requisicao.question("Como podemos ajudar? \n" +
@@ -868,14 +875,6 @@ function Cliente_Logado(){
     }
     if (n2 == 8){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
-    }
-}
-if (n1 == 2){
-    let bool = sistema.fazerLoginF()
-    if (bool == true){
-        Funcionario_Logado();
-    } else {
-        Pagina_Inicial();
     }
 }
 function Funcionario_Logado(){
