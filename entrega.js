@@ -128,6 +128,11 @@ class Sistema{
         this.loggedInClient = null; // Armazera o cliente logado
         this.loggedInFuncionario = null; // Armazena o funcionario logado
     }
+    gerarID() {
+        return "ID_" + Math.floor(1000 + Math.random() * 9000);
+    }
+//-----------------------------------------------------------------------------------    
+// OPÇÕES CLIENTE!! 
     fazerReserva(){
         console.log("\n--- Reserva de quartos ---\n");
 
@@ -139,8 +144,8 @@ class Sistema{
 
             if (quarto.disponibilidade === "vago") {
 
-                let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada: ")
-                let checkout = requisicao.question("Por favor, informe-nos o dia de sua saida: ")
+                let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (DD/MM/AAAA): ")
+                let checkout = requisicao.question("Por favor, informe-nos o dia de sua saida (DD/MM/AAAA): ")
 
                 let ID_unico;
                 do {
@@ -177,6 +182,7 @@ class Sistema{
             }
 
         }
+        Cliente_Logado();
     }
     cancelarReserva() {
         // Step 1: Load existing reservations
@@ -199,10 +205,9 @@ class Sistema{
         // Step 4: Save updated list back to JSON
         fs.writeFileSync("reservas.json", JSON.stringify(reservasAtualizadas, null, 2));
 
-        console.log(`✅ Reserva ${ID_reserva} cancelada com sucesso!`);
-    }
-    gerarID() {
-        return "ID_" + Math.floor(1000 + Math.random() * 9000);
+        console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
+
+        Cliente_Logado();
     }
     MudarDadosC(){
         console.log("\n--- Mudanca de Dados ---\n");
@@ -222,47 +227,65 @@ class Sistema{
             }
             this.loggedInClient.nome = novo_nome;
             this.saveClients();
-            console.log("\nNome mudado com sucesso!\n")
+            console.log("\nNome mudado com sucesso!\n");
+            Cliente_Logado();
         }
         if (change == 2){
             let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+
+            if (novo_email != email_confirmacao){ //evita erros de cadastramento
+                console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+                this.MudarDadosC();
+            }
+
+
             if (novo_email.length === 0) {
                 console.log("O email não pode estar vazio. Tente novamente.");
                 return;
             }
             this.loggedInClient.email = novo_email;
             this.saveClients();
-            console.log("\nEmail mudado com sucesso!\n")
+            console.log("\nEmail mudado com sucesso!\n");
+            Cliente_Logado();
         }
         if (change == 3){
             let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
+            let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+            if (nova_senha != senha_confirmacao){ //evita erros de cadastramento
+                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
+                this.MudarDadosC();
+            }
             if (nova_senha.length === 0) {
                 console.log("A senha não pode estar vazia. Tente novamente.");
                 return;
             }
             this.loggedInClient.senha = nova_senha;
             this.saveClients();
-            console.log("\nSenha mudada com sucesso!\n")
+            console.log("\nSenha mudada com sucesso!\n");
+            Cliente_Logado();
         }
         if (change == 4){
-            let novo_data_nascimento = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            let novo_data_nascimento = requisicao.question("\nPor favor, insira a nova data de nascimento desejada (DD/MM/AAAA): ");
             if (novo_data_nascimento.length === 0) {
                 console.log("A data de nascimento não pode estar vazia. Tente novamente.");
                 return;
             }
             this.loggedInClient.data_nascimento = novo_data_nascimento;
             this.saveClients();
-            console.log("\nData de nascimento mudada com sucesso!\n")
+            console.log("\nData de nascimento mudada com sucesso!\n");
+            Cliente_Logado();
         }
         if (change == 5){
-            let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado: ");
+            let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
             if (novo_cpf.length === 0) {
                 console.log("O cpf não pode estar vazio. Tente novamente.");
                 return;
             }
             this.loggedInClient.cpf = novo_cpf;
             this.saveClients();
-            console.log("\nCPF mudado com sucesso!\n")
+            console.log("\nCPF mudado com sucesso!\n");
+            Cliente_Logado();
         }
     }
 
@@ -286,7 +309,17 @@ class Sistema{
                 `-----------------------\n`);
             });
         }
+        Cliente_Logado();
     }
+    verInformacoes() {
+        if (this.loggedInClient) {
+            this.loggedInClient.verInformacoesC();
+        } else {
+            console.log("\n⚠️ Nenhum usuário logado. Faça login primeiro.\n");
+        }
+        Cliente_Logado();
+    }
+//---------------------------------------------------------------------------------------------
     fazerLoginC() {
         console.log("\n--- Login de Cliente ---\n");
 
@@ -309,11 +342,11 @@ class Sistema{
                 return true;
             } else {
                 console.log("\n❌ Senha incorreta. Tente novamente.\n");
-                return;
+                return false
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
-            return;
+            return false
         }
     }  
     fazerCadastroC() {
@@ -321,9 +354,22 @@ class Sistema{
 
         let nome = requisicao.question("Insira seu nome: ");
         let data_nascimento = requisicao.question("Insira sua data de nascimento (DD/MM/AAAA): ");
-        let cpf = requisicao.question("Insira seu CPF: ");
+        let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
         let email = requisicao.question("Insira seu email: ");
+        let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+
+        if (email != email_confirmacao){ //evita erros de cadastramento
+            console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+            this.fazerCadastroC();
+        }
+
         let senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
+        let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+
+        if (senha != senha_confirmacao){ //evita erros de cadastramento
+            console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
+            this.fazerCadastroC();
+        }
 
         let ID_unico;
         do {
@@ -335,21 +381,29 @@ class Sistema{
         this.saveClients(); // Save data after adding a new client
 
         console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}\n`);
-    }
-    verInformacoes() {
-        if (this.loggedInClient) {
-            this.loggedInClient.verInformacoesC();
-        } else {
-            console.log("\n⚠️ Nenhum usuário logado. Faça login primeiro.\n");
-        }
+
+        Pagina_Inicial();
     }
     fazerCadastroF() {
         console.log("\n--- Cadastro de Funcionario ---\n");
 
         let nome_usuario = requisicao.question("Insira seu nome de usuario: ");
-        let cpf = requisicao.question("Insira seu CPF: ");
+        let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
         let email = requisicao.question("Insira seu email: ");
+        let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+
+        if (email != email_confirmacao){ //evita erros de cadastramento
+            console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+            this.fazerCadastroC();
+        }
+
         let senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
+        let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+
+        if (senha != senha_confirmacao){ //evita erros de cadastramento
+            console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
+            this.fazerCadastroC();
+        }
 
         let ID_unico;
         do {
@@ -361,6 +415,8 @@ class Sistema{
         this.saveFuncionarios(); // Save data after adding a new funcionario
 
         console.log(`\nCadastro realizado com sucesso! Seu ID é: ${ID_unico}\n`);
+
+        Pagina_Inicial();
     }
     fazerLoginF() {
         console.log("\n--- Login de Funcionario ---\n");
@@ -384,11 +440,11 @@ class Sistema{
                 return true;
             } else {
                 console.log("\n❌ Senha incorreta. Tente novamente.\n");
-                return;
+                return false
             }
         } else {
             console.log("\n❌ Email não encontrado. Faça o cadastro primeiro.\n");
-            return;
+            return false
         }
     }
 //---------------------------------------------------------------------------------------------
@@ -429,6 +485,7 @@ class Sistema{
                 console.log("Desculpe. Opcao inexistente!");
             }
             this.verQuartos();
+            Funcionario_Logado();
         }
     }
     ExcluirQuarto(){
@@ -443,9 +500,11 @@ class Sistema{
             console.log("\nQuarto deletado com sucesso!");
 
             this.verQuartos();
+            Funcionario_Logado();
             return
         } else { 
             console.log("\nDesculpe. Quarto inexistente!\n");
+            Funcionario_Logado();
         }
     }
     MudarDadosF(){
@@ -460,31 +519,53 @@ class Sistema{
             let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
             if (novo_nome.length === 0) {
                 console.log("O nome não pode estar vazio. Tente novamente.");
+                this.MudarDadosF();
                 return;
             }
             this.loggedInFuncionario.nome_usuario = novo_nome;
             this.saveFuncionarios();
             console.log("\nNome mudado com sucesso!\n")
+            this.verInformacoesf();
+            Funcionario_Logado();
         }
         if (change == 2){
             let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+            let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+
+            if (novo_email != email_confirmacao){ //evita erros de cadastramento
+                console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+                this.MudarDadosF();
+            }
+
+
             if (novo_email.length === 0) {
                 console.log("O email não pode estar vazio. Tente novamente.");
+                this.MudarDadosF();
                 return;
             }
             this.loggedInFuncionario.email = novo_email;
             this.saveFuncionarios();
             console.log("\nEmail mudado com sucesso!\n")
+            this.verInformacoesf();
+            Funcionario_Logado();
         }
         if (change == 3){
             let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
+            let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+            if (nova_senha != senha_confirmacao){ //evita erros de cadastramento
+                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
+                this.MudarDadosF();
+            }
             if (nova_senha.length === 0) {
                 console.log("A senha não pode estar vazia. Tente novamente.");
+                this.MudarDadosF();
                 return;
             }
             this.loggedInFuncionario.senha = nova_senha;
             this.saveFuncionarios();
             console.log("\nSenha mudada com sucesso!\n")
+            this.verInformacoesf();
+            Funcionario_Logado();
         }
     }
 
@@ -492,6 +573,7 @@ class Sistema{
         if (this.loggedInFuncionario) {
             this.loggedInFuncionario.verInformacoesF();
         }
+        Funcionario_Logado();
     }
     listarReservas() {
         console.log("\n--- Lista de Reservas ---\n");
@@ -508,6 +590,7 @@ class Sistema{
                 );
             });
         }
+        Funcionario_Logado();
     }
     addQuartos() {
         console.log("\n--- Registramento de Quartos ---\n");
@@ -522,7 +605,8 @@ class Sistema{
         this.quartos.set(nome, quarto);
         this.saveQuartos();
 
-        console.log("Cadastramento de quarto realizado com sucesso!\n");
+        console.log("\nCadastramento de quarto realizado com sucesso!\n");
+        Funcionario_Logado();
     }
     verQuartos() {
         console.log("\n--- Lista de Quartos ---\n");
@@ -539,6 +623,7 @@ class Sistema{
                     `-------------------------\n`);
             });
         }
+        Funcionario_Logado();
     }
     listarClientes() {
         console.log("\n--- Lista de Clientes ---\n");
@@ -549,6 +634,7 @@ class Sistema{
                 console.log(`ID: ${id}, Nome: ${cliente.nome}, Email: ${cliente.email}\n`);
             });
         }
+        Funcionario_Logado();
     }
     MudarStatus(){
         let ID_reserva = requisicao.question("\nPor favor, insira o ID da reserva que voce deseja alterar o status: ")
@@ -563,6 +649,8 @@ class Sistema{
         console.log(`\n✅ Status atualizado com sucesso para "${reserva.status}"!\n`);
 
         this.saveReservas();
+
+        Funcionario_Logado();
     }
 
 //-----------------------------------------------------------------------------------------------------
@@ -675,15 +763,17 @@ class Sistema{
                 this.reservas.set(reserva.ID_unico, reserva);
             });
         }
-    }    
+    }   
+ 
 //-------------------------------------------------------------------------------------------------------------
+// OPÇÕES NA PÁGINA INICIAL DO SISTEMA
 FazerAvaliacao(){
     console.log("\n---   Avaliacao de estadia   ---\n");
 
     let nome_ex_cliente = requisicao.question("Qual seu nome?: ");
-    let cpf = requisicao.question('Insira o numero do seu cpf por favor, sem os caracteres "." e "-" .');
-    let checkin = requisicao.question("Qual foi o dia do seu checkin?: ");
-    let checkout = requisicao.question("Qual foi o dia do seu checkout?: ");
+    let cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros)');
+    let checkin = requisicao.question("Qual foi o dia do seu checkin? (DD/MM/AAAA): ");
+    let checkout = requisicao.question("Qual foi o dia do seu checkout? (DD/MM/AAAA): ");
     let comentario = requisicao.question("Diga-nos como foi a sua experiencia no Hotel F-luxo: ")
 
     let avaliacao = new Avaliacao(nome_ex_cliente, cpf, checkin, checkout, comentario);
@@ -691,6 +781,7 @@ FazerAvaliacao(){
     this.saveAvaliacoes();
 }
 VisualizarAvaliacoes(){
+    Teste();
     console.log("\n---   Lista de Avaliacoes   ---\n");
     if (this.avaliacoes.size === 0) {
         console.log("Desculpe. Não há avaliacoes no momento!");
@@ -706,26 +797,53 @@ VisualizarAvaliacoes(){
     });
 }
 }
+//-----------------------------------------------------------------------------------------------------------------
+//PÁGINA INICIAL DO SISTEMA
 let sistema = new Sistema()
-let n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
-    "Escolha uma opcao no nosso suporte de atendimento:\n\n" +
-    "Fazer Login de Cliente =                Digite 1 \n" +
-    "Fazer Login de Funcionario =            Digite 2 \n" +
-    "Fazer Cadastro de Cliente =             Digite 3 \n" +
-    "Fazer Cadastro de Funcionario =         Digite 4 \n" +
-    "Sair do Programa =                      Digite 5\n" +
-    "Avaliar estadia =                       Digite 6\n" +
-    "Visualizar avaliacoes =                 Digite 7\n" 
-    )
+function Pagina_Inicial(){
+    var n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
+        "Escolha uma opcao no nosso suporte de atendimento:\n\n" +
+        "Fazer Login de Cliente =                Digite 1 \n" +
+        "Fazer Login de Funcionario =            Digite 2 \n" +
+        "Fazer Cadastro de Cliente =             Digite 3 \n" +
+        "Fazer Cadastro de Funcionario =         Digite 4 \n" +
+        "Sair do Programa =                      Digite 5\n" +
+        "Avaliar estadia =                       Digite 6\n" +
+        "Visualizar avaliacoes =                 Digite 7\n" 
+        )
+    if (n1 == 3){
+        sistema.fazerCadastroC();
+    }
+    if (n1 == 4){
+        sistema.fazerCadastroF();
+    }
+    if (n1 == 6){
+        sistema.FazerAvaliacao();
+    }
+    if (n1 == 7){
+        sistema.VisualizarAvaliacoes();
+    }    
+    return n1;
+}
+var n1 = Pagina_Inicial();
 if (n1 == 1){
-    sistema.fazerLoginC();
+    let bool = sistema.fazerLoginC();
+    if (bool == true){
+        Cliente_Logado();
+    } else {
+        Pagina_Inicial();
+    }
+}
+function Cliente_Logado(){
     let n2 = requisicao.question("Como podemos ajudar? \n" +
         "Ver meus dados:            Digite 1\n" +
         "Ver lista de quartos:      Digite 2\n" +
         "Fazer Reserva:             Digite 3\n" + 
         "Cancelar Reserva:          Digite 4\n" +
         "Ver minhas reservas:       Digite 5\n" +
-        "Mudar meus dados:          Digite 6\n"
+        "Mudar meus dados:          Digite 6\n" +
+        "Voltar para pagina incial: Digite 7\n" +
+        "Sair do sistema:           Digite 8\n"
         )
     if (n2 == 1){
         sistema.verInformacoes();
@@ -745,58 +863,66 @@ if (n1 == 1){
     if (n2 == 6){
         sistema.MudarDadosC();
     }
-}
-if (n1 == 2){
-    if (sistema.fazerLoginF() == true){
-        let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: \n"+
-            "Acessar lista de clientes:     Digite 1\n" +
-            "Registrar novos quartos:       Digite 2\n" +
-            "Acessar lista de quartos:      Digite 3\n" +
-            "Ver suas informacoes:          Digite 4\n" +
-            "Listar reservas:               Digite 5\n" +
-            "Mudar status de reserva:       Digite 6\n" +
-            "Mudar seus dados:              Digite 7\n" +
-            "Editar quartos:                Digite 8\n" +
-            "Excluir quartos:               Digite 9\n" 
-        )
-        if (n2 == 1){
-            sistema.listarClientes();
-        }
-        if (n2 == 2){
-            sistema.addQuartos();
-        }
-        if (n2 == 3){
-            sistema.verQuartos();
-        }
-        if (n2 == 4){
-            sistema.verInformacoesf();
-        }
-        if (n2 == 5){
-            sistema.listarReservas();
-        }
-        if (n2 == 6){
-            sistema.MudarStatus();
-        }
-        if (n2 == 7){
-            sistema.MudarDadosF();
-        }
-        if (n2 == 8){
-            sistema.EditarQuarto();
-        }
-        if (n2 == 9){
-            sistema.ExcluirQuarto();
-        }
+    if (n2 == 7){
+        Pagina_Inicial();
+    }
+    if (n2 == 8){
+        console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
     }
 }
-if (n1 == 3){
-    sistema.fazerCadastroC();
+if (n1 == 2){
+    let bool = sistema.fazerLoginF()
+    if (bool == true){
+        Funcionario_Logado();
+    } else {
+        Pagina_Inicial();
+    }
 }
-if (n1 == 4){
-    sistema.fazerCadastroF();
-}
-if (n1 == 6){
-    sistema.FazerAvaliacao();
-}
-if (n1 == 7){
-    sistema.VisualizarAvaliacoes();
+function Funcionario_Logado(){
+    let n2 = requisicao.question("Bem vindo novamente, o que deseja fazer?: \n"+
+        "Acessar lista de clientes:     Digite 1\n" +
+        "Registrar novos quartos:       Digite 2\n" +
+        "Acessar lista de quartos:      Digite 3\n" +
+        "Ver suas informacoes:          Digite 4\n" +
+        "Listar reservas:               Digite 5\n" +
+        "Mudar status de reserva:       Digite 6\n" +
+        "Mudar seus dados:              Digite 7\n" +
+        "Editar quartos:                Digite 8\n" +
+        "Excluir quartos:               Digite 9\n" +
+        "Sair do sistema:               Digite 10\n" +
+        "Voltar para Pagina Inicial:    Digite 11\n"
+    )
+    if (n2 == 1){
+        sistema.listarClientes();
+    }
+    if (n2 == 2){
+        sistema.addQuartos();
+    }
+    if (n2 == 3){
+        sistema.verQuartos();
+    }
+    if (n2 == 4){
+        sistema.verInformacoesf();
+    }
+    if (n2 == 5){
+        sistema.listarReservas();
+    }
+    if (n2 == 6){
+        sistema.MudarStatus();
+    }
+    if (n2 == 7){
+        sistema.MudarDadosF();
+    }
+    if (n2 == 8){
+        sistema.EditarQuarto();
+    }
+    if (n2 == 9){
+        sistema.ExcluirQuarto();
+    }
+    if (n2 == 10){
+        console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
+    }
+    if (n2 == 11){
+        Pagina_Inicial();
+    }
 }
