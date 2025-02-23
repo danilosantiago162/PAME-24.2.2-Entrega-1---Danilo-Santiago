@@ -771,7 +771,7 @@ FazerAvaliacao(){
     console.log("\n---   Avaliacao de estadia   ---\n");
 
     let nome_ex_cliente = requisicao.question("Qual seu nome?: ");
-    let cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros)');
+    let cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros): ');
     let checkin = requisicao.question("Qual foi o dia do seu checkin? (DD/MM/AAAA): ");
     let checkout = requisicao.question("Qual foi o dia do seu checkout? (DD/MM/AAAA): ");
     let comentario = requisicao.question("Diga-nos como foi a sua experiencia no Hotel F-luxo: ")
@@ -800,6 +800,7 @@ VisualizarAvaliacoes(){
 //-----------------------------------------------------------------------------------------------------------------
 //PÁGINA INICIAL DO SISTEMA
 let sistema = new Sistema()
+Pagina_Inicial();
 function Pagina_Inicial(){
     var n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
         "Escolha uma opcao no nosso suporte de atendimento:\n\n" +

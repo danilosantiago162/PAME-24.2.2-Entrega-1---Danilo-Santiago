@@ -11,5 +11,12 @@
     "checkin": "02/09/2025",
     "checkout": "11/09/2025",
     "comentario": "MUITO BOAAA!!"
+  },
+  {
+    "nome_ex_cliente": "Danilo Santiago",
+    "cpf": "11122211122",
+    "checkin": "01/02/2024",
+    "checkout": "04/02/2024",
+    "comentario": "Melhor imposs�vel!"
   }
 ]
