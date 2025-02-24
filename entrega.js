@@ -135,12 +135,8 @@ class Sistema{
 // OPÇÕES CLIENTE!! 
     fazerReserva(){    //faz reserva
         console.log("\n--- Reserva de quartos ---\n");
-    
 
-        //exibe todos os quartos com todas informaçôes
-        
-
-        console.log("\n--- Lista de Quartos ---\n");
+        console.log("\n--- Lista de Quartos ---\n"); //exibe todos os quartos com todas informaçôes
         if (this.quartos.size === 0) {
             console.log("Não há quartos");
         } else {
@@ -150,16 +146,34 @@ class Sistema{
                     `preço por noite: ${quarto.preco_noite},\n` +
                     `nome: ${nome}, \n` +
                     `comentários: ${quarto.descricao}, \n` +
-                    `Disponibilidade: ${quarto.disponibilidade}\n` +
                     `-------------------------\n`);
             });
         }
-
-        
-        
         let quarto = requisicao.question("\nInsira a seguir o nome do quarto de interesse: ");
         let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
         let checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
+
+        const Reserva_UM = this.reservas.has(quarto);
+        const Reserva_DOIS = this.reservas.get(quarto);
+        
+        console.log(Reserva_UM);
+        console.log(Reserva_DOIS);
+
+        console.log("\n--- Lista de Reservas ---\n");
+        if (this.reservas.size === 0) {
+            console.log("Nenhuma reserva cadastrada.");
+        } else {
+            this.reservas.forEach((reserva, ID_unico) => {
+                console.log(
+                    `ID da Reserva: ${ID_unico}\n` +
+                    `ID do Cliente: ${reserva.ID_cliente}\n` +
+                    `Status: ${reserva.status}\n` +
+                    `Check In: ${reserva.checkin}\n` +
+                    `Check Out: ${reserva.checkout}\n` +
+                    `Quarto: ${reserva.quarto}\n`
+                );
+            });
+        }
 
         if (this.reservas.has(quarto)) { //verifica a existência de alguma reserva nesse quarto
             let reserva = this.reservas.get(quarto); // a variavel quarto é um objeto caso "nome" exista como chave em this.quartos 
@@ -169,6 +183,12 @@ class Sistema{
 
             let checkin_novo = new Date(checkin);
             let checkout_novo = new Date(checkout);
+
+            console.log(checkin_existente);
+            console.log(checkout_existente);
+            console.log(checkin_novo);
+            console.log(checkout_novo);
+            console.log(reserva);
 
             if (checkin_novo <= checkout_existente || checkin_existente >= checkout_novo){
 
@@ -204,6 +224,8 @@ class Sistema{
                 this.reservas.set(ID_unico, reserva); //adiciona novo objeto de Reserva no map() this.reservas
                 
                 this.saveReservas(); //salva reserva
+
+                console.log("Reserva realizada com sucesso!");
                 Cliente_Logado(); 
         }
     }
