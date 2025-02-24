@@ -1,26 +1,4 @@
-//Teste
 
-//console.log("Hello World")
-
-//var requisicao = require('readline-sync')
-
-//var nome = requisicao.question("Qual seu nome?:")
-
-//console.log(nome)
-
-//class person{
-    //constructor(nome, idade, altura){
-
-        //this.nome = nome;
-        //this.idade = idade;
-        //this.altura = altura;
-    //}
-//}
-
-//var requisicao = require('readline-sync')
-//let name = requisicao.question("Insira seu nome: ")
-//let person1 = new person(name, 21, 1.88)
-//console.log(person1)
 const fs = require("fs"); //Import file system module
 let requisicao = require('readline-sync')
 
@@ -108,9 +86,7 @@ class Avaliacao{
 class Sistema{
 
     constructor() {
-
         //armazena em arrays as informações de quarto, cliente, funcionario e reservas
-
         this.quartos = new Map();
         this.clients = new Map();
         this.funcionarios = new Map();
@@ -119,7 +95,6 @@ class Sistema{
 
         //sempre que alguem cadastra/registra um cliente/quarto/funcionario/reserva o this. carrega para as arrays criadas
         
-
         this.loadClients(); 
         this.loadQuartos();
         this.loadFuncionarios();
@@ -134,8 +109,7 @@ class Sistema{
 //-----------------------------------------------------------------------------------    
 // OPÇÕES CLIENTE!! 
     fazerReserva(){    //faz reserva
-        console.log("\n--- Reserva de quartos ---\n");
-
+        
         console.log("\n--- Lista de Quartos ---\n"); //exibe todos os quartos com todas informaçôes
         if (this.quartos.size === 0) {
             console.log("Não há quartos");
@@ -149,6 +123,9 @@ class Sistema{
                     `-------------------------\n`);
             });
         }
+
+        console.log("\n--- Reserva de quartos ---\n");
+
         let quarto = requisicao.question("\nInsira a seguir o nome do quarto de interesse: ");
         let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
         let checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
@@ -257,7 +234,7 @@ class Sistema{
             let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
             if (novo_nome.length === 0) {
                 console.log("O nome não pode estar vazio. Tente novamente.");
-                return;
+                this.MudarDadosC();
             }
             this.loggedInClient.nome = novo_nome;
             this.saveClients();
@@ -273,10 +250,9 @@ class Sistema{
                 this.MudarDadosC();
             }
 
-
             if (novo_email.length === 0) {
-                console.log("O email não pode estar vazio. Tente novamente.");
-                return;
+                console.log("\nO email não pode estar vazio. Tente novamente.\n");
+                this.MudarDadosC();
             }
             this.loggedInClient.email = novo_email;
             this.saveClients();
@@ -287,12 +263,12 @@ class Sistema{
             let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
             let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
             if (nova_senha != senha_confirmacao){ //evita erros de cadastramento
-                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
+                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente!\n")
                 this.MudarDadosC();
             }
             if (nova_senha.length === 0) {
-                console.log("A senha não pode estar vazia. Tente novamente.");
-                return;
+                console.log("\nA senha não pode estar vazia. Tente novamente.\n");
+                this.MudarDadosC();
             }
             this.loggedInClient.senha = nova_senha;
             this.saveClients();
@@ -302,8 +278,8 @@ class Sistema{
         if (change == 4){
             let novo_data_nascimento = requisicao.question("\nPor favor, insira a nova data de nascimento desejada (DD/MM/AAAA): ");
             if (novo_data_nascimento.length === 0) {
-                console.log("A data de nascimento não pode estar vazia. Tente novamente.");
-                return;
+                console.log("\nA data de nascimento não pode estar vazia. Tente novamente.\n");
+                this.MudarDadosC();
             }
             this.loggedInClient.data_nascimento = novo_data_nascimento;
             this.saveClients();
@@ -313,7 +289,7 @@ class Sistema{
         if (change == 5){
             let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
             if (novo_cpf.length === 0) {
-                console.log("O cpf não pode estar vazio. Tente novamente.");
+                console.log("\nO cpf não pode estar vazio. Tente novamente.\n");
                 return;
             }
             this.loggedInClient.cpf = novo_cpf;
@@ -354,7 +330,7 @@ class Sistema{
         }
         Cliente_Logado();
     }
-    verQuartos() {
+    verQuartosC() {
         console.log("\n--- Lista de Quartos ---\n");
         if (this.quartos.size === 0) {
             console.log("Não há quartos");
@@ -551,7 +527,7 @@ class Sistema{
             console.log("\nQuarto deletado com sucesso!");
 
             Funcionario_Logado();
-            return
+
         } else { 
             console.log("\nDesculpe. Quarto inexistente!\n");
             Funcionario_Logado();
@@ -570,12 +546,12 @@ class Sistema{
             if (novo_nome.length === 0) {
                 console.log("O nome não pode estar vazio. Tente novamente.");
                 this.MudarDadosF();
-                return;
+
             }
             this.loggedInFuncionario.nome_usuario = novo_nome;
             this.saveFuncionarios();
             console.log("\nNome mudado com sucesso!\n")
-            this.verInformacoesf();
+            Funcionario_Logado();
             
         }
         if (change == 2){
@@ -587,16 +563,14 @@ class Sistema{
                 this.MudarDadosF();
             }
 
-
             if (novo_email.length === 0) {
                 console.log("O email não pode estar vazio. Tente novamente.");
                 this.MudarDadosF();
-                return;
             }
             this.loggedInFuncionario.email = novo_email;
             this.saveFuncionarios();
             console.log("\nEmail mudado com sucesso!\n")
-            this.verInformacoesf();
+            Funcionario_Logado();
             
         }
         if (change == 3){
