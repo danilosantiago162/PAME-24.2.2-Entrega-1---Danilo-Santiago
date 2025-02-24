@@ -153,67 +153,39 @@ class Sistema{
         let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
         let checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
 
-        const Reserva_UM = this.reservas.has(quarto);
-        const Reserva_DOIS = this.reservas.get(quarto);
-        
-        console.log(Reserva_UM);
-        console.log(Reserva_DOIS);
+        const reservaExistente = Array.from(this.reservas.values()).find(reserva => reserva.quarto === quarto);
 
-        console.log("\n--- Lista de Reservas ---\n");
-        if (this.reservas.size === 0) {
-            console.log("Nenhuma reserva cadastrada.");
+        console.log(`\nReservas existentes para este quarto: \n`);
+
+        let reservasQuarto = Array.from(this.reservas.values()).filter(reserva => reserva.quarto === quarto);
+
+        if (reservasQuarto.length === 0) {
+            console.log("Nenhuma reserva encontrada para este quarto.");
         } else {
-            this.reservas.forEach((reserva, ID_unico) => {
+            reservasQuarto.forEach(reserva => {
                 console.log(
-                    `ID da Reserva: ${ID_unico}\n` +
-                    `ID do Cliente: ${reserva.ID_cliente}\n` +
-                    `Status: ${reserva.status}\n` +
-                    `Check In: ${reserva.checkin}\n` +
-                    `Check Out: ${reserva.checkout}\n` +
-                    `Quarto: ${reserva.quarto}\n`
-                );
+                `ID da reserva: ${reserva.ID_unico}, \n` +
+                `Check In: ${reserva.checkin}, \n` +
+                `Check Out: ${reserva.checkout}\n` +
+                `Quarto: ${reserva.quarto}\n` +
+                `-----------------------\n`);
             });
         }
 
-        if (this.reservas.has(quarto)) { //verifica a existência de alguma reserva nesse quarto
-            let reserva = this.reservas.get(quarto); // a variavel quarto é um objeto caso "nome" exista como chave em this.quartos 
+        if (reservaExistente) { //verifica a existência de alguma reserva nesse quarto
 
-            let checkin_existente = new Date(reserva.checkin);
-            let checkout_existente = new Date(reserva.checkout);
+            let checkin_existente = new Date(reservaExistente.checkin);
+            let checkout_existente = new Date(reservaExistente.checkout);
 
             let checkin_novo = new Date(checkin);
             let checkout_novo = new Date(checkout);
 
-            console.log(checkin_existente);
-            console.log(checkout_existente);
-            console.log(checkin_novo);
-            console.log(checkout_novo);
-            console.log(reserva);
-
-            if (checkin_novo <= checkout_existente || checkin_existente >= checkout_novo){
+            if (checkin_novo <= checkout_existente && checkout_novo >= checkin_existente) {
+                console.log("Período de estadia indisponível! Tente outro quarto ou outro período");
+                Cliente_Logado();
+            } else {
 
                 let ID_unico;
-                do {
-                    ID_unico = this.gerarID(); //chama a função gerarID()
-                } while (this.reservas.has(ID_unico)); //verifica se o ID é unico
-
-                let ID_cliente = this.loggedInClient.ID_unico; //armazena o ID_unico do cliente e o armazena como ID_cliente da reserva!
-
-                let reserva = new Reserva(ID_unico, ID_cliente, "Realizada", checkin, checkout) //cria novo objeto da classe Reserva
-                this.reservas.set(ID_unico, reserva); //adiciona novo objeto de Reserva no map() this.reservas
-                
-                this.saveReservas(); //salva reserva
-
-                console.log("\nReserva realizada com sucesso!")
-                Cliente_Logado(); 
-
-            } else {
-                console.log("\nO período escolhido para este quarto está indisponível! Escolha outro período ou outro quarto!\n")
-                return;
-            }
-        } else {
-
-            let ID_unico;
                 do {
                     ID_unico = this.gerarID(); //chama a função gerarID()
                 } while (this.reservas.has(ID_unico)); //verifica se o ID é unico
@@ -225,8 +197,25 @@ class Sistema{
                 
                 this.saveReservas(); //salva reserva
 
-                console.log("Reserva realizada com sucesso!");
+                console.log("\nReserva realizada com sucesso!")
                 Cliente_Logado(); 
+            }
+        } else {
+
+            let ID_unico;
+                do {
+                    ID_unico = this.gerarID(); //chama a função gerarID()
+                } while (this.reservas.has(ID_unico)); //verifica se o ID é unico
+
+            let ID_cliente = this.loggedInClient.ID_unico; //armazena o ID_unico do cliente e o armazena como ID_cliente da reserva!
+
+            let reserva = new Reserva(ID_unico, ID_cliente, "Realizada", checkin, checkout, quarto) //cria novo objeto da classe Reserva
+            this.reservas.set(ID_unico, reserva); //adiciona novo objeto de Reserva no map() this.reservas
+                
+            this.saveReservas(); //salva reserva
+
+            console.log("Reserva realizada com sucesso!");
+            Cliente_Logado(); 
         }
     }
     cancelarReserva() {
@@ -819,6 +808,7 @@ class Sistema{
                     reservaObj.status,
                     reservaObj.checkin,
                     reservaObj.checkout,
+                    reservaObj.quarto,
                 );
                 this.reservas.set(reserva.ID_unico, reserva);
             });
