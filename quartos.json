@@ -12,12 +12,5 @@
     "nome": "Suite Master",
     "descricao": "Perfeito para casal, completa e cheia de conforto.",
     "disponibilidade": "vago"
-  },
-  {
-    "qtde_camas": "1",
-    "preco_noite": "Suite Premium",
-    "nome": "Suite Premium",
-    "descricao": "Perfeito pro seu conforto e pro da seu/sua parceiro(a)",
-    "disponibilidade": "vago"
   }
 ]
