@@ -10,7 +10,7 @@
   {
     "ID_unico": "ID_8948",
     "ID_cliente": "ID_5097",
-    "status": "Realizada",
+    "status": "Cancelada",
     "checkin": "2025-03-02",
     "checkout": "2025-03-10",
     "quarto": "Suite Master"
@@ -18,7 +18,7 @@
   {
     "ID_unico": "ID_4404",
     "ID_cliente": "ID_5097",
-    "status": "Realizada",
+    "status": "Cancelada",
     "checkin": "2025-03-11",
     "checkout": "2025-03-15",
     "quarto": "Suite Master"

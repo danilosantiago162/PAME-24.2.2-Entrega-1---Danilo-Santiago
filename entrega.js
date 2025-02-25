@@ -199,27 +199,24 @@ class Sistema{
     cancelarReserva() {
         // Step 1: Load existing reservations
         if (!fs.existsSync("reservas.json")) {
-            console.log("Nenhuma reserva encontrada.");
+            console.log("\n ❌ Nenhuma reserva encontrada.");
             Cliente_Logado();
         }
         let ID_reserva = requisicao.question("\nInsira o ID da reserva que voce deseja cancelar: ")
         const data = fs.readFileSync("reservas.json", "utf-8");
         const reservas = JSON.parse(data);
-        let reservaExiste = reservas.some(reserva => reserva.ID_unico === ID_reserva);
+        let reservaExiste = reservas.find(reserva => String(reserva.ID_unico) === ID_reserva);
         if (!reservaExiste) {
             console.log("\n ❌ Reserva não encontrada.");
             Cliente_Logado();
+        } else {
+            reservaExiste.status = "Cancelada"
+            console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
+            fs.writeFileSync("reservas.json", JSON.stringify(reservas, null, 2));
+            Cliente_Logado();
         }
 
-        // Step 3: Remove the reservation
-        const reservasAtualizadas = reservas.filter(reserva => reserva.ID_unico !== ID_reserva);
 
-        // Step 4: Save updated list back to JSON
-        fs.writeFileSync("reservas.json", JSON.stringify(reservasAtualizadas, null, 2));
-
-        console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
-
-        Cliente_Logado();
     }
     MudarDadosC(){
         console.log("\n--- Mudanca de Dados ---\n");
@@ -871,7 +868,7 @@ function Pagina_Inicial(){
             Pagina_Inicial();
         }
     }
-    if (n1 == 2){
+    else if (n1 == 2){
         let bool = sistema.fazerLoginF()
         if (bool == true){
             Funcionario_Logado();
@@ -879,21 +876,24 @@ function Pagina_Inicial(){
             Pagina_Inicial();
         }
     }
-    if (n1 == 3){
+    else if (n1 == 3){
         sistema.fazerCadastroC();
     }
-    if (n1 == 4){
+    else if (n1 == 4){
         sistema.fazerCadastroF();
     }
-    if (n1 == 5){
+    else if (n1 == 5){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
     }
-    if (n1 == 6){
+    else if (n1 == 6){
         sistema.FazerAvaliacao();
     }
-    if (n1 == 7){
+    else if (n1 == 7){
         sistema.VisualizarAvaliacoes();
+    } else {
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
+        Pagina_Inicial();
     }    
     return n1;
 }
@@ -911,27 +911,30 @@ function Cliente_Logado(){
     if (n2 == 1){
         sistema.verInformacoes();
     }
-    if (n2 == 2){
+    else if (n2 == 2){
         sistema.verQuartosC();
     }
-    if (n2 == 3){
+    else if (n2 == 3){
         sistema.fazerReserva();
     }
-    if (n2 == 4){
+    else if (n2 == 4){
         sistema.cancelarReserva();
     }
-    if (n2 == 5){
+    else if (n2 == 5){
         sistema.verMinhasReservas();
     }
-    if (n2 == 6){
+    else if (n2 == 6){
         sistema.MudarDadosC();
     }
-    if (n2 == 7){
+    else if (n2 == 7){
         Pagina_Inicial();
     }
-    if (n2 == 8){
+    else if (n2 == 8){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
+    } else {
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
+        Pagina_Inicial();
     }
 }
 function Funcionario_Logado(){
@@ -951,35 +954,39 @@ function Funcionario_Logado(){
     if (n2 == 1){
         sistema.listarClientes();
     }
-    if (n2 == 2){
+    else if (n2 == 2){
         sistema.addQuartos();
     }
-    if (n2 == 3){
+    else if (n2 == 3){
         sistema.verQuartos();
     }
-    if (n2 == 4){
+    else if (n2 == 4){
         sistema.verInformacoesf();
     }
-    if (n2 == 5){
+    else if (n2 == 5){
         sistema.listarReservas();
     }
-    if (n2 == 6){
+    else if (n2 == 6){
         sistema.MudarStatus();
     }
-    if (n2 == 7){
+    else if (n2 == 7){
         sistema.MudarDadosF();
     }
-    if (n2 == 8){
+    else if (n2 == 8){
         sistema.EditarQuarto();
     }
-    if (n2 == 9){
+    else if (n2 == 9){
         sistema.ExcluirQuarto();
     }
-    if (n2 == 10){
+    else if (n2 == 10){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
     }
-    if (n2 == 11){
+    else if (n2 == 11){
+        Pagina_Inicial();
+    } else { 
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
         Pagina_Inicial();
     }
+    
 }
