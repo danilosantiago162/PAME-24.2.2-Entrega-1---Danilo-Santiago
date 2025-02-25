@@ -33,5 +33,12 @@
     "cpf": "11111111122",
     "email": "danilo.funcionario@gmail.com",
     "senha": "123456789"
+  },
+  {
+    "ID_unico": "ID_1907",
+    "nome_usuario": "Danilooo",
+    "cpf": "11100011100",
+    "email": "funcionariod@gmail.com",
+    "senha": "123456789"
   }
 ]

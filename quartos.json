@@ -1,14 +1,14 @@
 [
   {
-    "qtde_camas": "3",
-    "preco_noite": "250",
-    "nome": "Suite 100",
-    "descricao": "Otimo para sua familia desfrutar do melhor da cidade do Rio de Janeiro!"
-  },
-  {
     "qtde_camas": "1",
     "preco_noite": "300",
     "nome": "Suite Master",
     "descricao": "Perfeito para casal, completa e cheia de conforto."
+  },
+  {
+    "qtde_camas": "4",
+    "preco_noite": "350",
+    "nome": "Suite coletiva",
+    "descricao": "Venha se hospedar com seus amigos!"
   }
 ]
