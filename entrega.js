@@ -127,16 +127,23 @@ class Sistema{
         console.log("\n--- Reserva de quartos ---\n");
 
         let quarto = requisicao.question("\nInsira a seguir o nome do quarto de interesse: ");
-        let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
-        if (checkin[4] != "-" || checkin[7] != "-") {
+        let checkin;
+        while (true){
+            checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
+            if (checkin[4] === "-" && checkin[7] === "-" && checkin.length === 10){
+                break;
+            }
             console.log("\nVoce digitou a data errado, tente novamente\n");
-            this.fazerReserva();
         }
-        let checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
-        if (checkout[4] != "-" || checkout[7] != "-") {
+        let checkout;
+        while (true){
+            checkout = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
+            if (checkout[4] === "-" && checkout[7] === "-" && checkout.length === 10){
+                break;
+            }
             console.log("\nVoce digitou a data errado, tente novamente\n");
-            this.fazerReserva();
         }
+        
         const reservaExistente = Array.from(this.reservas.values()).find(reserva => reserva.quarto === quarto);
 
         let reservasQuarto = Array.from(this.reservas.values()).filter(reserva => reserva.quarto === quarto);
@@ -237,10 +244,13 @@ class Sistema{
         );
 
         if (change == 1){
-            let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
-            if (novo_nome.length === 0) {
+            let novo_nome;
+            while (true) {
+                novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
+                if (novo_nome.length !== 0){
+                    break;
+                }
                 console.log("O nome não pode estar vazio. Tente novamente.");
-                this.MudarDadosC();
             }
             this.loggedInClient.nome = novo_nome;
             this.saveClients();
@@ -248,33 +258,34 @@ class Sistema{
             Cliente_Logado();
         }
         if (change == 2){
-            let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
-            let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
 
-            if (novo_email != email_confirmacao){ //evita erros 
-                console.log("\nVoce digitou emails diferentes, insira-os novamente:\n")
-                this.MudarDadosC();
-            }
-
-            if (novo_email.includes(".com") != true || novo_email.includes("@") != true) {
-                console.log("\nO email está inválido. Tente novamente.\n");
-                this.MudarDadosC();
-            }
+            let novo_email;
+            let email_confirmacao;
+            while (true) {
+                novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+                email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+                if (email_confirmacao === novo_email && novo_email.includes("@") && novo_email.includes(".com")){
+                    break;
+                }
+                console.log("\nVoce digitou email diferentes ou invalidos. Tente novamente.");
+            }            
             this.loggedInClient.email = novo_email;
             this.saveClients();
             console.log("\n ✅ Email mudado com sucesso!\n");
             Cliente_Logado();
         }
         if (change == 3){
-            let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
-            let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
-            if (nova_senha != senha_confirmacao){ //evita erros
+
+            let nova_senha;
+            let senha_confirmacao;
+
+            while (true){
+                nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ", { hideEchoBack: true}); 
+                senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+                if (nova_senha === senha_confirmacao && nova_senha !== 0){
+                    break;
+                }
                 console.log("\nVoce digitou senhas diferentes, insira-as novamente!\n")
-                this.MudarDadosC();
-            }
-            if (nova_senha.length === 0) {
-                console.log("\nA senha não pode estar vazia. Tente novamente.\n");
-                this.MudarDadosC();
             }
 
             this.loggedInClient.senha = nova_senha;
@@ -283,28 +294,40 @@ class Sistema{
             Cliente_Logado();
         }
         if (change == 4){
-            let novo_data_nascimento = requisicao.question("\nPor favor, insira a nova data de nascimento desejada (DD/MM/AAAA): ");
-            if (novo_data_nascimento.length === 0) {
-                console.log("\nA data de nascimento não pode estar vazia. Tente novamente.\n");
-                this.MudarDadosC();
+            let novo_data_nascimento;
+
+            while (true) {
+                novo_data_nascimento = requisicao.question("\nPor favor, insira a nova data de nascimento desejada (DD/MM/AAAA): ");
+
+                if (novo_data_nascimento.length === 0) {
+                    console.log("\nA data de nascimento não pode estar vazia. Tente novamente.\n");
+                    continue; 
+                }
+
+                if (novo_data_nascimento.length === 10 && novo_data_nascimento[2] === "/" && novo_data_nascimento[5] === "/") {
+                    break; 
+                }
+
+                console.log("\nVocê digitou a data errada, tente novamente\n");
             }
-            
-            if (novo_data_nascimento[2] != "/" || novo_data_nascimento[5] != "/") {
-                console.log("\nVoce digitou a data errado, tente novamente\n");
-                this.MudarDadosC();
-            } else {
-                this.loggedInClient.data_nascimento = novo_data_nascimento;
-                this.saveClients();
-                console.log("\n ✅ Data de nascimento mudada com sucesso!\n");
-                Cliente_Logado();
-            }
+
+            this.loggedInClient.data_nascimento = novo_data_nascimento;
+            this.saveClients();
+
+            console.log("\n ✅ Data de nascimento mudada com sucesso!\n");
+
+            Cliente_Logado();
         }
         if (change == 5){
-            let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
-            if (novo_cpf.length !== 11 || isNaN(novo_cpf)) {
+            let novo_cpf;
+            while (true) {
+                novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
+                if (novo_cpf.length === 11 && isNaN(novo_cpf) === false){
+                    break;
+                }
                 console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
-                this.MudarDadosC();
             }
+            
             this.loggedInClient.cpf = novo_cpf;
             this.saveClients();
             console.log("\n ✅ CPF mudado com sucesso!\n");
@@ -394,38 +417,43 @@ class Sistema{
 
         let nome = requisicao.question("Insira seu nome: ");
 
-        let data_nascimento = requisicao.question("Insira sua data de nascimento (DD/MM/AAAA): ");
-
-        if (data_nascimento[2] != "/" || data_nascimento[5] != "/") {
-            console.log("\nVoce digitou a data errado, tente novamente\n");
-            this.fazerCadastroC();
+        //evita o problema que eu tava tendo ao chamar recursivamente o this.fazerCadastroC. Pois ao finalizar, o sistema chama Pagina incial, e se eu aperto 5, em vez do usuario sair do sistema ele volta pra onde o erro dele em fazer cadastro parou.
+        let data_nascimento;
+        while (true) {
+            data_nascimento = requisicao.question("Insira sua data de nascimento (DD/MM/AAAA): ");
+            if (data_nascimento.length === 10 && data_nascimento[2] === "/" && data_nascimento[5] === "/") {
+            break; 
+            }
+            console.log("\nVocê digitou a data errada, tente novamente\n");
         }
 
-        let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
-
-        if (cpf.length !== 11 || isNaN(cpf)) {
+        let cpf;
+        while(true) {
+            cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
+            if (cpf.length === 11 || isNaN(cpf) === false) {
+                break;
+            }
             console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
-            this.fazerCadastroC();
         }
 
-        let email = requisicao.question("Insira seu email: ");
-        let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
-
-        if (email != email_confirmacao){ //evita erros de cadastramento
-            console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
-            this.fazerCadastroC();
-        }
-        if (email.includes(".com") != true || email.includes("@") != true) {
-            console.log("\nO email está inválido. Tente novamente.\n");
-            this.fazerCadastroC();
+        let email, email_confirmacao;
+        while (true) {
+            email = requisicao.question("Insira seu email: ");
+            email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+            if (email === email_confirmacao && email.includes("@") && email.includes(".com")) {
+                break;
+            }
+            console.log("\nOs emails não conferem ou estão inválidos. Tente novamente.\n");
         }
 
-        let senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
-        let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
-
-        if (senha != senha_confirmacao){ //evita erros de cadastramento
-            console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
-            this.fazerCadastroC();
+        let senha, senha_confirmacao;
+        while (true) {
+            senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
+            senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true });
+            if (senha === senha_confirmacao) {
+                break;
+            }
+            console.log("\nAs senhas não conferem. Tente novamente.\n");
         }
 
         let ID_unico;
@@ -445,32 +473,35 @@ class Sistema{
         console.log("\n--- Cadastro de Funcionario ---\n");
 
         let nome_usuario = requisicao.question("Insira seu nome de usuario: ");
-        let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
 
-        if (cpf.length !== 11 || isNaN(cpf)) {
+        let cpf;
+        while(true) {
+            cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
+            if (cpf.length === 11 || isNaN(cpf) === false) {
+                break;
+            }
             console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
-            this.fazerCadastroF();
         }
 
-        let email = requisicao.question("Insira seu email: ");
-        let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
-
-        if (email != email_confirmacao){ //evita erros de cadastramento
-            console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
-            this.fazerCadastroF();
+        let email, email_confirmacao;
+        while (true) {
+            email = requisicao.question("Insira seu email: ");
+            email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+            if (email === email_confirmacao && email.includes("@") && email.includes(".com")) {
+                break;
+            }
+            console.log("\nOs emails não conferem ou estão inválidos. Tente novamente.\n");
         }
 
-        if (email.includes(".com") != true || email.includes("@") != true) {
-            console.log("\nO email está inválido. Tente novamente.\n");
-            this.fazerCadastroF();
-        }
 
-        let senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
-        let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
-
-        if (senha != senha_confirmacao){ //evita erros de cadastramento
-            console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
-            this.fazerCadastroC();
+        let senha, senha_confirmacao;
+        while (true) {
+            senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
+            senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true });
+            if (senha === senha_confirmacao) {
+                break;
+            }
+            console.log("\nAs senhas não conferem. Tente novamente.\n");
         }
 
         let ID_unico;
@@ -536,23 +567,26 @@ class Sistema{
                 this.saveQuartos();
             }
             if (n == 2){
-                let novo_qtde_camas= requisicao.question(`Insira a nova quantidade de camas do quarto ${quarto.nome}: `);
-                if (typeof novo_qtde_camas != "number"){
+                let novo_qtde_camas;
+                while (true) {
+                    novo_qtde_camas= requisicao.question(`Insira a nova quantidade de camas do quarto ${quarto.nome}: `);
+                    if (typeof novo_qtde_camas === "number"){
+                        break;
+                    }
                     console.log("\nVoce digitou errado, tente novamente");
-                    this.EditarQuarto();
                 }
                 quarto.qtde_camas = novo_qtde_camas;
-
                 this.saveQuartos();
             }
             if (n == 3){
-                let novo_preco = requisicao.question(`Insira o novo preco da noite do quarto ${quarto.nome}: `);
-        
-                if (typeof novo_preco != "number"){
+                let novo_preco;
+                while (true){
+                    novo_preco = requisicao.question(`Insira o novo preco da noite do quarto ${quarto.nome}: `);
+                    if (typeof novo_preco === "number"){
+                        break;
+                    }
                     console.log("\nVoce digitou errado, tente novamente");
-                    this.EditarQuarto();
                 }
-
                 quarto.preco_noite = novo_preco;
                 this.saveQuartos();
             }
@@ -563,6 +597,7 @@ class Sistema{
             } 
             if (n != 1 && n != 2 && n != 3 && n != 4) {
                 console.log("\nDesculpe. Opcao inexistente!");
+                Funcionario_Logado();
             }
             console.log("\n ✅ Alterações feitas com sucesso!");
             Funcionario_Logado();
@@ -595,54 +630,54 @@ class Sistema{
         );
 
         if (change == 1){
-            let novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
-            if (novo_nome.length === 0) {
+            let novo_nome;
+            while (true) {
+                novo_nome = requisicao.question("\nPor favor, insira o novo nome desejado: ");
+                if (novo_nome.length !== 0){
+                    break;
+                }
                 console.log("O nome não pode estar vazio. Tente novamente.");
-                this.MudarDadosF();
-
             }
-            this.loggedInFuncionario.nome_usuario = novo_nome;
+            this.loggedInFuncionario.nome = novo_nome;
             this.saveFuncionarios();
-            console.log("\n ✅ Nome mudado com sucesso!\n")
+            console.log("\n ✅ Nome mudado com sucesso!\n");
             Funcionario_Logado();
             
         }
         if (change == 2){
-            let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
-            let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
-
-            if (novo_email != email_confirmacao){ //evita erros de cadastramento
-                console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
-                this.MudarDadosF();
-            }
-
-            if (novo_email.includes(".com") != true || novo_email.includes("@") != true ) {
-                console.log("\nO email esta invalido. Tente novamente.");
-                this.MudarDadosF();
-            }
+            let novo_email;
+            let email_confirmacao;
+            while (true) {
+                novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
+                email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
+                if (email_confirmacao === novo_email && novo_email.includes("@") && novo_email.includes(".com")){
+                    break;
+                }
+                console.log("\nVoce digitou email diferentes ou invalidos. Tente novamente.");
+            }            
             this.loggedInFuncionario.email = novo_email;
             this.saveFuncionarios();
-            console.log("\n ✅ Email mudado com sucesso!\n")
+            console.log("\n ✅ Email mudado com sucesso!\n");
             Funcionario_Logado();
             
         }
         if (change == 3){
-            let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
-            let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
-            if (nova_senha != senha_confirmacao){ //evita erros de cadastramento
-                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente:\n")
-                this.MudarDadosF();
+            let nova_senha;
+            let senha_confirmacao;
+
+            while (true){
+                nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ", { hideEchoBack: true}); 
+                senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
+                if (nova_senha === senha_confirmacao && nova_senha !== 0){
+                    break;
+                }
+                console.log("\nVoce digitou senhas diferentes, insira-as novamente!\n")
             }
-            if (nova_senha.length === 0) {
-                console.log("A senha não pode estar vazia. Tente novamente.");
-                this.MudarDadosF();
-                return;
-            }
+
             this.loggedInFuncionario.senha = nova_senha;
             this.saveFuncionarios();
-            console.log("\n ✅ Senha mudada com sucesso!\n")
-            this.verInformacoesf();
-            
+            console.log("\n ✅ Senha mudada com sucesso!\n");
+            Funcionario_Logado();            
         }
     }
 
@@ -673,16 +708,24 @@ class Sistema{
     addQuartos() {
         console.log("\n--- Registramento de Quartos ---\n");
 
-        let qtde_camas = requisicao.question("Quantidade de camas: ");
-        if (isNaN(qtde_camas)){
+        let qtde_camas;
+        while (true){
+            qtde_camas = requisicao.question("Quantidade de camas: ");
+            if (isNaN(qtde_camas) === false){
+                break;
+            }
             console.log("\nVoce digitou errado, tente novamente");
-            this.addQuartos();
         }
-        let preco_noite = requisicao.question("Preco por noite (apenas numeros): ");
-        if (isNaN(preco_noite)){
+
+        let preco_noite;
+        while (true){
+            preco_noite = requisicao.question("Preco por noite (apenas numeros): ");
+            if (isNaN(preco_noite) === false){
+                break;
+            }
             console.log("\nVoce digitou errado, tente novamente");
-            this.addQuartos();
         }
+        
         let nome = requisicao.question("Nome do quarto: ");
         let descricao = requisicao.question("Descricao do quarto: ");
 
@@ -725,7 +768,7 @@ class Sistema{
         let reserva = this.reservas.get(ID_reserva) 
         if (!reserva){
             console.log("Desculpe. Reserva não encontrada!");
-            Cliente_Logado();
+            Funcionario_Logado();
         }
         let novo_status = requisicao.question(`\nAltere o status da reserva: ${reserva.ID_unico} de ${reserva.status} para: `)
         reserva.status = novo_status
@@ -858,24 +901,31 @@ FazerAvaliacao(){
     console.log("\n---   Avaliacao de estadia   ---\n");
 
     let nome_ex_cliente = requisicao.question("Qual seu nome?: ");
-    let cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros): ');
 
-    if (isNaN(cpf) || cpf.length !== 11){
+    let cpf;
+    while(true){
+        cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros): ');
+        if (isNaN(cpf) === false & cpf.length === 11){
+            break;
+        }
         console.log("Voce digitou o cpf incorretamente. Tente novamente");
-        this.FazerAvaliacao();
     }
 
-    let checkin = requisicao.question("Qual foi o dia do seu checkin? (DD/MM/AAAA): ");
-    if (checkin[2] !== "/" || checkin[5] !== "/"){
+    let checkin;
+    while(true){
+        checkin = requisicao.question("Qual foi o dia do seu checkin? (DD/MM/AAAA): ");
+        if (checkin[2] === "/" && checkin[5] === "/" && checkin.length === 10){
+            break;
+        }
         console.log("Voce digitou a data de checkin incorretamente. Tente novamente");
-        this.FazerAvaliacao();
     }
-
-    let checkout = requisicao.question("Qual foi o dia do seu checkout? (DD/MM/AAAA): ");
-
-    if (checkout[2] !== "/" || checkout[5] !== "/"){
+    let checkout;
+    while(true){
+        checkout = requisicao.question("Qual foi o dia do seu checkout? (DD/MM/AAAA): ");
+        if (checkout[2] === "/" && checkout[5] === "/" && checkout.length === 10){
+            break;
+        }
         console.log("Voce digitou a data de checkout incorretamente. Tente novamente");
-        this.FazerAvaliacao();
     }
 
     let comentario = requisicao.question("Diga-nos como foi a sua experiencia no Hotel F-luxo: ")
