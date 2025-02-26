@@ -12,7 +12,7 @@
     "nome": "Danilo2",
     "data_nascimento": "01/09/2002",
     "cpf": "99999999999",
-    "email": "daniloteste2@gmail.com",
+    "email": "danilodanilo",
     "senha": "123456789"
   },
   {
@@ -40,11 +40,11 @@
     "senha": "123456789"
   },
   {
-    "ID_unico": "ID_9966",
-    "nome": "Selma",
-    "data_nascimento": "10/09/1965",
-    "cpf": "22222222222",
-    "email": "selmacliente@gmail.com",
-    "senha": ""
+    "ID_unico": "ID_7050",
+    "nome": "Fernanda",
+    "data_nascimento": "01/02/2002",
+    "cpf": "22211133344",
+    "email": "fernanda@gmail.com",
+    "senha": "123456789"
   }
 ]

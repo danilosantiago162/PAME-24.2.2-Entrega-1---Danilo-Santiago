@@ -128,11 +128,16 @@ class Sistema{
 
         let quarto = requisicao.question("\nInsira a seguir o nome do quarto de interesse: ");
         let checkin = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
+        if (checkin[4] != "-" || checkin[7] != "-") {
+            console.log("\nVoce digitou a data errado, tente novamente\n");
+            this.fazerReserva();
+        }
         let checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
-
+        if (checkout[4] != "-" || checkout[7] != "-") {
+            console.log("\nVoce digitou a data errado, tente novamente\n");
+            this.fazerReserva();
+        }
         const reservaExistente = Array.from(this.reservas.values()).find(reserva => reserva.quarto === quarto);
-
-        console.log(`\nReservas existentes para este quarto: \n`);
 
         let reservasQuarto = Array.from(this.reservas.values()).filter(reserva => reserva.quarto === quarto);
 
@@ -140,6 +145,9 @@ class Sistema{
             console.log("Nenhuma reserva encontrada para este quarto.");
             Cliente_Logado();
         } else {
+
+            console.log(`\nReservas existentes para este quarto: \n`); 
+
             reservasQuarto.forEach(reserva => {
                 console.log(
                 `ID da reserva: ${reserva.ID_unico}, \n` +
@@ -197,7 +205,7 @@ class Sistema{
         }
     }
     cancelarReserva() {
-        // Step 1: Load existing reservations
+        
         if (!fs.existsSync("reservas.json")) {
             console.log("\n ❌ Nenhuma reserva encontrada.");
             Cliente_Logado();
@@ -248,8 +256,8 @@ class Sistema{
                 this.MudarDadosC();
             }
 
-            if (novo_email.length === 0) {
-                console.log("\nO email não pode estar vazio. Tente novamente.\n");
+            if (novo_email.includes(".com") != true || novo_email.includes("@") != true) {
+                console.log("\nO email está inválido. Tente novamente.\n");
                 this.MudarDadosC();
             }
             this.loggedInClient.email = novo_email;
@@ -268,6 +276,7 @@ class Sistema{
                 console.log("\nA senha não pode estar vazia. Tente novamente.\n");
                 this.MudarDadosC();
             }
+
             this.loggedInClient.senha = nova_senha;
             this.saveClients();
             console.log("\n ✅ Senha mudada com sucesso!\n");
@@ -279,15 +288,21 @@ class Sistema{
                 console.log("\nA data de nascimento não pode estar vazia. Tente novamente.\n");
                 this.MudarDadosC();
             }
-            this.loggedInClient.data_nascimento = novo_data_nascimento;
-            this.saveClients();
-            console.log("\n ✅ Data de nascimento mudada com sucesso!\n");
-            Cliente_Logado();
+            
+            if (novo_data_nascimento[2] != "/" || novo_data_nascimento[5] != "/") {
+                console.log("\nVoce digitou a data errado, tente novamente\n");
+                this.MudarDadosC();
+            } else {
+                this.loggedInClient.data_nascimento = novo_data_nascimento;
+                this.saveClients();
+                console.log("\n ✅ Data de nascimento mudada com sucesso!\n");
+                Cliente_Logado();
+            }
         }
         if (change == 5){
             let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
-            if (novo_cpf.length === 0) {
-                console.log("\nO cpf não pode estar vazio. Tente novamente.\n");
+            if (novo_cpf.length !== 11 || isNaN(novo_cpf)) {
+                console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
                 this.MudarDadosC();
             }
             this.loggedInClient.cpf = novo_cpf;
@@ -378,13 +393,30 @@ class Sistema{
         console.log("\n--- Cadastro de Cliente ---\n");
 
         let nome = requisicao.question("Insira seu nome: ");
+
         let data_nascimento = requisicao.question("Insira sua data de nascimento (DD/MM/AAAA): ");
+
+        if (data_nascimento[2] != "/" || data_nascimento[5] != "/") {
+            console.log("\nVoce digitou a data errado, tente novamente\n");
+            this.fazerCadastroC();
+        }
+
         let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
+
+        if (cpf.length !== 11 || isNaN(cpf)) {
+            console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
+            this.fazerCadastroC();
+        }
+
         let email = requisicao.question("Insira seu email: ");
         let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
 
         if (email != email_confirmacao){ //evita erros de cadastramento
             console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+            this.fazerCadastroC();
+        }
+        if (email.includes(".com") != true || email.includes("@") != true) {
+            console.log("\nO email está inválido. Tente novamente.\n");
             this.fazerCadastroC();
         }
 
@@ -414,12 +446,23 @@ class Sistema{
 
         let nome_usuario = requisicao.question("Insira seu nome de usuario: ");
         let cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
+
+        if (cpf.length !== 11 || isNaN(cpf)) {
+            console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
+            this.fazerCadastroF();
+        }
+
         let email = requisicao.question("Insira seu email: ");
         let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
 
         if (email != email_confirmacao){ //evita erros de cadastramento
             console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
-            this.fazerCadastroC();
+            this.fazerCadastroF();
+        }
+
+        if (email.includes(".com") != true || email.includes("@") != true) {
+            console.log("\nO email está inválido. Tente novamente.\n");
+            this.fazerCadastroF();
         }
 
         let senha = requisicao.question("Insira sua senha: ", { hideEchoBack: true });
@@ -573,8 +616,8 @@ class Sistema{
                 this.MudarDadosF();
             }
 
-            if (novo_email.length === 0) {
-                console.log("O email não pode estar vazio. Tente novamente.");
+            if (novo_email.includes(".com") != true || novo_email.includes("@") != true ) {
+                console.log("\nO email esta invalido. Tente novamente.");
                 this.MudarDadosF();
             }
             this.loggedInFuncionario.email = novo_email;
@@ -631,12 +674,12 @@ class Sistema{
         console.log("\n--- Registramento de Quartos ---\n");
 
         let qtde_camas = requisicao.question("Quantidade de camas: ");
-        if (typeof qtde_camas != "number"){
+        if (isNaN(qtde_camas)){
             console.log("\nVoce digitou errado, tente novamente");
             this.addQuartos();
         }
-        let preco_noite = requisicao.question("Preco por noite: ");
-        if (typeof qtde_camas != "number"){
+        let preco_noite = requisicao.question("Preco por noite (apenas numeros): ");
+        if (isNaN(preco_noite)){
             console.log("\nVoce digitou errado, tente novamente");
             this.addQuartos();
         }
@@ -816,8 +859,25 @@ FazerAvaliacao(){
 
     let nome_ex_cliente = requisicao.question("Qual seu nome?: ");
     let cpf = requisicao.question('Insira o numero do seu cpf por favor (apenas numeros): ');
+
+    if (isNaN(cpf) || cpf.length !== 11){
+        console.log("Voce digitou o cpf incorretamente. Tente novamente");
+        this.FazerAvaliacao();
+    }
+
     let checkin = requisicao.question("Qual foi o dia do seu checkin? (DD/MM/AAAA): ");
+    if (checkin[2] !== "/" || checkin[5] !== "/"){
+        console.log("Voce digitou a data de checkin incorretamente. Tente novamente");
+        this.FazerAvaliacao();
+    }
+
     let checkout = requisicao.question("Qual foi o dia do seu checkout? (DD/MM/AAAA): ");
+
+    if (checkout[2] !== "/" || checkout[5] !== "/"){
+        console.log("Voce digitou a data de checkout incorretamente. Tente novamente");
+        this.FazerAvaliacao();
+    }
+
     let comentario = requisicao.question("Diga-nos como foi a sua experiencia no Hotel F-luxo: ")
 
     let avaliacao = new Avaliacao(nome_ex_cliente, cpf, checkin, checkout, comentario);
@@ -884,7 +944,6 @@ function Pagina_Inicial(){
     }
     else if (n1 == 5){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
-        return;
     }
     else if (n1 == 6){
         sistema.FazerAvaliacao();
