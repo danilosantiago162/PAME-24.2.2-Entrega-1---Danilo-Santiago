@@ -34,9 +34,17 @@
   {
     "ID_unico": "ID_2854",
     "ID_cliente": "ID_5097",
-    "status": "Realizada",
+    "status": "Cancelada",
     "checkin": "2025-03-26",
     "checkout": "2025-03-30",
+    "quarto": "Suite Master"
+  },
+  {
+    "ID_unico": "ID_7213",
+    "ID_cliente": "ID_5026",
+    "status": "Realizada",
+    "checkin": "2020-12-02",
+    "checkout": "2020-12-30",
     "quarto": "Suite Master"
   }
 ]

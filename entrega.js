@@ -137,7 +137,7 @@ class Sistema{
         }
         let checkout;
         while (true){
-            checkout = requisicao.question("\nPor favor, informe-nos o dia de sua chegada (AAAA-MM-DD): ");
+            checkout = requisicao.question("\nPor favor, informe-nos o dia de sua saida (AAAA-MM-DD): ");
             if (checkout[4] === "-" && checkout[7] === "-" && checkout.length === 10){
                 break;
             }
@@ -225,10 +225,16 @@ class Sistema{
             console.log("\n ❌ Reserva não encontrada.");
             Cliente_Logado();
         } else {
-            reservaExiste.status = "Cancelada"
-            console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
-            fs.writeFileSync("reservas.json", JSON.stringify(reservas, null, 2));
-            Cliente_Logado();
+            let ID_unico_cliente = this.loggedInClient.ID_unico;
+            if (reservaExiste.ID_cliente !== ID_unico_cliente){
+                console.log("\nEssa reserva não e sua! Selecione uma de suas reservas para cancelar.");
+                Cliente_Logado();
+            } else {
+                reservaExiste.status = "Cancelada"
+                console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
+                fs.writeFileSync("reservas.json", JSON.stringify(reservas, null, 2));
+                Cliente_Logado();
+            }
         }
 
 
@@ -477,7 +483,7 @@ class Sistema{
         let cpf;
         while(true) {
             cpf = requisicao.question("Insira seu CPF (apenas numeros): ");
-            if (cpf.length === 11 || isNaN(cpf) === false) {
+            if (cpf.length === 11 && isNaN(cpf) === false) {
                 break;
             }
             console.log("\nO cpf deve conter 11 numeros apenas. Tente novamente.\n");
@@ -949,7 +955,8 @@ VisualizarAvaliacoes(){
             `\nNome do hospede: ${avaliacao.nome_ex_cliente}` +
             `\nData de checkin: ${avaliacao.checkin}` +
             `\nData de checkout: ${avaliacao.checkout}` +
-            `\nAvaliacao do hospede: \n\n${avaliacao.comentario}\n` 
+            `\nAvaliacao do hospede: \n\n${avaliacao.comentario}\n` +
+            `------------------------------------------------------------------------`
         );
     });
     Pagina_Inicial();
@@ -960,7 +967,7 @@ VisualizarAvaliacoes(){
 let sistema = new Sistema()
 Pagina_Inicial();
 function Pagina_Inicial(){
-    var n1 = requisicao.question("\nBem vindo ao F-luxo, como podemos ajudar?\n\n" + 
+    var n1 = requisicao.question("\nBem vindo a Pagina Inicial do Hotel F-luxo, como podemos ajudar?\n\n" + 
         "Escolha uma opcao no nosso suporte de atendimento:\n\n" +
         "Fazer Login de Cliente =                Digite 1\n" +
         "Fazer Login de Funcionario =            Digite 2\n" +
@@ -994,6 +1001,7 @@ function Pagina_Inicial(){
     }
     else if (n1 == 5){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
+        return;
     }
     else if (n1 == 6){
         sistema.FazerAvaliacao();
@@ -1007,7 +1015,7 @@ function Pagina_Inicial(){
     return n1;
 }
 function Cliente_Logado(){
-    let n2 = requisicao.question("\nComo podemos ajudar? \n" +
+    let n2 = requisicao.question("\nCliente Logado! Como podemos ajudar? \n" +
         "Ver meus dados:            Digite 1\n" +
         "Ver lista de quartos:      Digite 2\n" +
         "Fazer Reserva:             Digite 3\n" + 
@@ -1047,7 +1055,7 @@ function Cliente_Logado(){
     }
 }
 function Funcionario_Logado(){
-    let n2 = requisicao.question("\nBem vindo novamente, como podemos ajudar?: \n"+
+    let n2 = requisicao.question("\nFuncionario Logado! Como podemos ajudar?: \n"+
         "Acessar lista de clientes:     Digite 1\n" +
         "Registrar novos quartos:       Digite 2\n" +
         "Acessar lista de quartos:      Digite 3\n" +

@@ -46,37 +46,5 @@
     "cpf": "22222222222",
     "email": "selmacliente@gmail.com",
     "senha": ""
-  },
-  {
-    "ID_unico": "ID_3467",
-    "nome": "Jo�o",
-    "data_nascimento": "01.02.2002",
-    "cpf": "33333333333",
-    "email": "jo�o@gmail.com",
-    "senha": "123456789"
-  },
-  {
-    "ID_unico": "ID_7050",
-    "nome": "Fernanda",
-    "data_nascimento": "01/02/2002",
-    "cpf": "22211133344",
-    "email": "fernanda@gmail.com",
-    "senha": "123456789"
-  },
-  {
-    "ID_unico": "ID_2370",
-    "nome": "Fernanda",
-    "data_nascimento": "01/02/2002",
-    "cpf": "22211133344",
-    "email": "fernanda@gmail.co",
-    "senha": "5"
-  },
-  {
-    "ID_unico": "ID_8876",
-    "nome": "teste",
-    "data_nascimento": "01/02/2002",
-    "cpf": "11122233366",
-    "email": "teste@gmail.com",
-    "senha": "123456789"
   }
 ]
