@@ -138,6 +138,7 @@ class Sistema{
 
         if (reservasQuarto.length === 0) {
             console.log("Nenhuma reserva encontrada para este quarto.");
+            Cliente_Logado();
         } else {
             reservasQuarto.forEach(reserva => {
                 console.log(
@@ -198,27 +199,24 @@ class Sistema{
     cancelarReserva() {
         // Step 1: Load existing reservations
         if (!fs.existsSync("reservas.json")) {
-            console.log("Nenhuma reserva encontrada.");
-            return;
+            console.log("\n ❌ Nenhuma reserva encontrada.");
+            Cliente_Logado();
         }
-        let ID_reserva = requisicao.question("Insira o ID da reserva que voce deseja cancelar: ")
+        let ID_reserva = requisicao.question("\nInsira o ID da reserva que voce deseja cancelar: ")
         const data = fs.readFileSync("reservas.json", "utf-8");
         const reservas = JSON.parse(data);
-        let reservaExiste = reservas.some(reserva => reserva.ID_unico === ID_reserva);
+        let reservaExiste = reservas.find(reserva => String(reserva.ID_unico) === ID_reserva);
         if (!reservaExiste) {
-            console.log("❌ Reserva não encontrada.");
-            return;
+            console.log("\n ❌ Reserva não encontrada.");
+            Cliente_Logado();
+        } else {
+            reservaExiste.status = "Cancelada"
+            console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
+            fs.writeFileSync("reservas.json", JSON.stringify(reservas, null, 2));
+            Cliente_Logado();
         }
 
-        // Step 3: Remove the reservation
-        const reservasAtualizadas = reservas.filter(reserva => reserva.ID_unico !== ID_reserva);
 
-        // Step 4: Save updated list back to JSON
-        fs.writeFileSync("reservas.json", JSON.stringify(reservasAtualizadas, null, 2));
-
-        console.log(`\n✅ Reserva ${ID_reserva} cancelada com sucesso!\n`);
-
-        Cliente_Logado();
     }
     MudarDadosC(){
         console.log("\n--- Mudanca de Dados ---\n");
@@ -245,8 +243,8 @@ class Sistema{
             let novo_email = requisicao.question("\nPor favor, insira o novo email desejado: ");
             let email_confirmacao = requisicao.question("Insira o mesmo email novamente: ");
 
-            if (novo_email != email_confirmacao){ //evita erros de cadastramento
-                console.log("\nVoce digitou emails diferentes, cadastre-se novamente:\n")
+            if (novo_email != email_confirmacao){ //evita erros 
+                console.log("\nVoce digitou emails diferentes, insira-os novamente:\n")
                 this.MudarDadosC();
             }
 
@@ -262,8 +260,8 @@ class Sistema{
         if (change == 3){
             let nova_senha = requisicao.question("\nPor favor, insira a nova senha desejado: ");
             let senha_confirmacao = requisicao.question("Insira a mesma senha novamente: ", { hideEchoBack: true});
-            if (nova_senha != senha_confirmacao){ //evita erros de cadastramento
-                console.log("\nVoce digitou senhas diferentes, cadastre-se novamente!\n")
+            if (nova_senha != senha_confirmacao){ //evita erros
+                console.log("\nVoce digitou senhas diferentes, insira-as novamente!\n")
                 this.MudarDadosC();
             }
             if (nova_senha.length === 0) {
@@ -290,7 +288,7 @@ class Sistema{
             let novo_cpf = requisicao.question("\nPor favor, insira o novo cpf desejado (apenas numeros): ");
             if (novo_cpf.length === 0) {
                 console.log("\nO cpf não pode estar vazio. Tente novamente.\n");
-                return;
+                this.MudarDadosC();
             }
             this.loggedInClient.cpf = novo_cpf;
             this.saveClients();
@@ -446,6 +444,7 @@ class Sistema{
         Pagina_Inicial();
     }
     fazerLoginF() {
+
         console.log("\n--- Login de Funcionario ---\n");
 
         let email = requisicao.question("Insira seu email: ");
@@ -495,11 +494,22 @@ class Sistema{
             }
             if (n == 2){
                 let novo_qtde_camas= requisicao.question(`Insira a nova quantidade de camas do quarto ${quarto.nome}: `);
+                if (typeof novo_qtde_camas != "number"){
+                    console.log("\nVoce digitou errado, tente novamente");
+                    this.EditarQuarto();
+                }
                 quarto.qtde_camas = novo_qtde_camas;
+
                 this.saveQuartos();
             }
             if (n == 3){
                 let novo_preco = requisicao.question(`Insira o novo preco da noite do quarto ${quarto.nome}: `);
+        
+                if (typeof novo_preco != "number"){
+                    console.log("\nVoce digitou errado, tente novamente");
+                    this.EditarQuarto();
+                }
+
                 quarto.preco_noite = novo_preco;
                 this.saveQuartos();
             }
@@ -621,7 +631,15 @@ class Sistema{
         console.log("\n--- Registramento de Quartos ---\n");
 
         let qtde_camas = requisicao.question("Quantidade de camas: ");
+        if (typeof qtde_camas != "number"){
+            console.log("\nVoce digitou errado, tente novamente");
+            this.addQuartos();
+        }
         let preco_noite = requisicao.question("Preco por noite: ");
+        if (typeof qtde_camas != "number"){
+            console.log("\nVoce digitou errado, tente novamente");
+            this.addQuartos();
+        }
         let nome = requisicao.question("Nome do quarto: ");
         let descricao = requisicao.question("Descricao do quarto: ");
 
@@ -651,7 +669,7 @@ class Sistema{
     listarClientes() {
         console.log("\n--- Lista de Clientes ---\n");
         if (this.clients.size === 0) {
-            console.log("Nenhum cliente cadastrado.");
+            console.log("\nNenhum cliente cadastrado.\n");
         } else {
             this.clients.forEach((cliente, id) => {
                 console.log(`ID: ${id}, Nome: ${cliente.nome}, Email: ${cliente.email}\n`);
@@ -664,7 +682,7 @@ class Sistema{
         let reserva = this.reservas.get(ID_reserva) 
         if (!reserva){
             console.log("Desculpe. Reserva não encontrada!");
-            return;
+            Cliente_Logado();
         }
         let novo_status = requisicao.question(`\nAltere o status da reserva: ${reserva.ID_unico} de ${reserva.status} para: `)
         reserva.status = novo_status
@@ -676,6 +694,8 @@ class Sistema{
         Funcionario_Logado();
     }
 
+    
+ 
 //-----------------------------------------------------------------------------------------------------
 //SAVE AND LOADS
 
@@ -848,7 +868,7 @@ function Pagina_Inicial(){
             Pagina_Inicial();
         }
     }
-    if (n1 == 2){
+    else if (n1 == 2){
         let bool = sistema.fazerLoginF()
         if (bool == true){
             Funcionario_Logado();
@@ -856,21 +876,24 @@ function Pagina_Inicial(){
             Pagina_Inicial();
         }
     }
-    if (n1 == 3){
+    else if (n1 == 3){
         sistema.fazerCadastroC();
     }
-    if (n1 == 4){
+    else if (n1 == 4){
         sistema.fazerCadastroF();
     }
-    if (n1 == 5){
+    else if (n1 == 5){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
     }
-    if (n1 == 6){
+    else if (n1 == 6){
         sistema.FazerAvaliacao();
     }
-    if (n1 == 7){
+    else if (n1 == 7){
         sistema.VisualizarAvaliacoes();
+    } else {
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
+        Pagina_Inicial();
     }    
     return n1;
 }
@@ -888,27 +911,30 @@ function Cliente_Logado(){
     if (n2 == 1){
         sistema.verInformacoes();
     }
-    if (n2 == 2){
+    else if (n2 == 2){
         sistema.verQuartosC();
     }
-    if (n2 == 3){
+    else if (n2 == 3){
         sistema.fazerReserva();
     }
-    if (n2 == 4){
+    else if (n2 == 4){
         sistema.cancelarReserva();
     }
-    if (n2 == 5){
+    else if (n2 == 5){
         sistema.verMinhasReservas();
     }
-    if (n2 == 6){
+    else if (n2 == 6){
         sistema.MudarDadosC();
     }
-    if (n2 == 7){
+    else if (n2 == 7){
         Pagina_Inicial();
     }
-    if (n2 == 8){
+    else if (n2 == 8){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
+    } else {
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
+        Pagina_Inicial();
     }
 }
 function Funcionario_Logado(){
@@ -928,35 +954,39 @@ function Funcionario_Logado(){
     if (n2 == 1){
         sistema.listarClientes();
     }
-    if (n2 == 2){
+    else if (n2 == 2){
         sistema.addQuartos();
     }
-    if (n2 == 3){
+    else if (n2 == 3){
         sistema.verQuartos();
     }
-    if (n2 == 4){
+    else if (n2 == 4){
         sistema.verInformacoesf();
     }
-    if (n2 == 5){
+    else if (n2 == 5){
         sistema.listarReservas();
     }
-    if (n2 == 6){
+    else if (n2 == 6){
         sistema.MudarStatus();
     }
-    if (n2 == 7){
+    else if (n2 == 7){
         sistema.MudarDadosF();
     }
-    if (n2 == 8){
+    else if (n2 == 8){
         sistema.EditarQuarto();
     }
-    if (n2 == 9){
+    else if (n2 == 9){
         sistema.ExcluirQuarto();
     }
-    if (n2 == 10){
+    else if (n2 == 10){
         console.log("\nVoce saiu do sistema com sucesso, volte sempre!");
         return;
     }
-    if (n2 == 11){
+    else if (n2 == 11){
+        Pagina_Inicial();
+    } else { 
+        console.log("\n ❌ Voce digitou uma opcao invalida. Tente novamente.")
         Pagina_Inicial();
     }
+    
 }
